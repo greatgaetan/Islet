@@ -15,10 +15,28 @@ The stated goal is not the feature set. It is that the motion feels native.
 
 - Native Swift only. AppKit `NSPanel` shell, SwiftUI content. There is no
   public Dynamic Island API on macOS — the whole illusion is hand-built.
-- The **built-in notched display**, always. Never `NSScreen.main`: on this
-  machine the main display is frequently an external monitor. Measured notch:
-  220 × 38 pt.
-- No external-display fallback, no fake notch elsewhere.
+- A notched display always wins — it is the only place the silhouette can be
+  genuinely invisible at rest, which is the whole illusion. Measured notch on the
+  author's machine: 220 × 38 pt. Never `NSScreen.main`: it follows the key window
+  and moves around under you.
+- **Without a notch, Islet still runs**, as a pill hanging from the top edge of
+  the display carrying the menu bar, standing in a 56 × menu-bar-height gap where
+  the hardware would be.
+
+  This reverses the original decision ("the built-in display and nothing else").
+  It was right for one user and wrong for a shared project: **most Macs in use
+  have no notch** — every desktop, every laptop before 2021, the M1 Air — so
+  requiring one excluded far more people than the OS version ever did. The
+  rendering already worked; only the decision was missing.
+
+  The cost, and it is real: macOS does not reserve the centre of the menu bar on
+  a display without a notch, so the pill can visually overlap status items on a
+  crowded or narrow screen. Surgical hit testing means the overlap is never
+  functional — clicks still reach what is underneath — and it is the same trade
+  already accepted for the 28 pt overhang beside a real notch.
+
+  One thing does change with no hardware to hide against: `hidden` cannot mean
+  "retract into the bezel", so it fades out instead.
 - Local data only. No sync, no account. Public GitHub, MIT, clone-and-build.
 
 ## Presentation states

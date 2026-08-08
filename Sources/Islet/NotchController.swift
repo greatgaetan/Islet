@@ -87,6 +87,7 @@ final class NotchController {
         let model = model ?? NotchModel(notch: found.dimensions, tasks: tasks, history: history, recap: recap)
         model.notch = found.dimensions
         model.isSurfaceAvailable = true
+        model.hasPhysicalNotch = found.hasPhysicalNotch
         self.model = model
         if isFirstConfigure { wire(model) }
 

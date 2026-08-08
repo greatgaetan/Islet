@@ -36,6 +36,7 @@ struct NotchRootView: View {
         }
         .frame(width: geometry.size.width, height: geometry.size.height, alignment: .top)
         .opacity(model.hasAppeared ? 1 : 0)
+        .opacity(model.state == .hidden && !model.hasPhysicalNotch ? 0 : 1)
         .onAppear { model.markAppeared() }
     }
 

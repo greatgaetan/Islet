@@ -10,6 +10,10 @@ import SwiftUI
 final class NotchModel {
     private(set) var machine = NotchStateMachine()
     var notch: NotchDimensions
+    /// Without a notch, retracting to "exactly the hardware" leaves a visible
+    /// black pill sitting in the menu bar. There is nothing to hide against, so
+    /// hidden has to mean faded out.
+    var hasPhysicalNotch = true
     let pomodoro = PomodoroModel()
     let tasks: TaskModel
     let history: SessionHistoryModel

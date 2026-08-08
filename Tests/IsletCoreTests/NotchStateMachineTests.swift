@@ -399,3 +399,42 @@ final class DragToOpenTests: XCTestCase {
         XCTAssertEqual(DragToOpen.progress(base: 0.3, translation: 99, distance: 0), 0.3)
     }
 }
+
+final class SurfaceScreenTests: XCTestCase {
+    private func candidate(notch: Bool = false, menuBar: Bool = false) -> ScreenCandidate {
+        ScreenCandidate(hasNotch: notch, carriesMenuBar: menuBar)
+    }
+
+    func testARealNotchAlwaysWins() {
+        // Even when the notched display is not the one with the menu bar: it is
+        // the only place the silhouette can be genuinely invisible at rest.
+        let screens = [candidate(menuBar: true), candidate(notch: true)]
+        XCTAssertEqual(SurfaceScreen.choose(from: screens), 1)
+    }
+
+    func testWithoutANotchItFollowsTheMenuBar() {
+        let screens = [candidate(), candidate(menuBar: true), candidate()]
+        XCTAssertEqual(SurfaceScreen.choose(from: screens), 1)
+    }
+
+    func testSomewhereIsBetterThanNowhere() {
+        XCTAssertEqual(SurfaceScreen.choose(from: [candidate(), candidate()]), 0)
+    }
+
+    func testNoScreensMeansNoSurface() {
+        XCTAssertNil(SurfaceScreen.choose(from: []))
+    }
+
+    func testTheSyntheticNotchLeavesRoomForBothHalves() {
+        let synthetic = NotchDimensions.synthetic(menuBarHeight: 24)
+        XCTAssertGreaterThan(synthetic.width, 0,
+                             "a zero gap puts the two glyphs on top of each other")
+        XCTAssertEqual(synthetic.height, 24)
+    }
+
+    func testTheSyntheticHeightNeverCollapses() {
+        // A menu bar height of zero would be nonsense, and a zero-height
+        // silhouette is not a silhouette.
+        XCTAssertGreaterThanOrEqual(NotchDimensions.synthetic(menuBarHeight: 0).height, 22)
+    }
+}

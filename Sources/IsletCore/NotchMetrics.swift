@@ -11,9 +11,7 @@ public struct NotchDimensions: Equatable, Sendable {
         self.height = height
     }
 
-    /// Development stand-in when no notched display is attached.
-    /// Never a shipping code path — see `ISLET_FAKE_NOTCH`.
-    public static let fallback = NotchDimensions(width: 200, height: 38)
+
 }
 
 /// Every dimension of the silhouette, as a *single* animatable value.

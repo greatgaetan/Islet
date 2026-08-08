@@ -1,6 +1,7 @@
 # Islet
 
-A to-do list and a Pomodoro timer that live around the notch of your MacBook.
+A to-do list and a Pomodoro timer that live around the notch of your MacBook —
+or hang from the top edge of any Mac that hasn't got one.
 
 Left of the notch: three categories — **To do**, **Defer**, **Delegate**. Right
 of the notch: a Pomodoro session. Hover to reach the controls, click to open the
@@ -42,7 +43,7 @@ Data lives in `~/Library/Application Support/Islet/` as plain, readable JSON:
 ## Requirements
 
 - macOS 14 (Sonoma) or later — it compiles for 14 unchanged, though it has only been *run* on 26
-- A Mac with a notch (Islet targets the built-in display and nothing else)
+- Any Mac. With a notch it wraps the hardware; without one it hangs from the top edge of whichever display carries the menu bar
 - Xcode 26 / Swift 6.2 toolchain
 
 ## Run from source
@@ -107,7 +108,7 @@ instead of resuming from its current velocity.
 
 ```sh
 ISLET_SLOWMO=5 swift run       # start slowed down
-ISLET_FAKE_NOTCH=1 swift run   # draw on the main screen when no notched display is attached
+ISLET_NO_NOTCH=1 swift run     # pretend the hardware has none, to see the pill rendering
 ISLET_FAST=1 swift run         # a whole session in 26s, so transitions can be watched
 ISLET_AUTOSTART=1 swift run    # start a session at launch, without clicking
 ISLET_TICK_LOG=1 swift run     # print every tick with its timestamp
@@ -129,7 +130,7 @@ ISLET_FAST=1 ISLET_AUTOSTART=1 ISLET_SLOWMO=5 swift run   # the useful combinati
 swift test
 ```
 
-114 tests. The state machine, the geometry, the Pomodoro plan and every task
+120 tests. The state machine, the geometry, the Pomodoro plan and every task
 operation are pure, so all of them are tested. The views are not — see
 [DESIGN.md](DESIGN.md).
 

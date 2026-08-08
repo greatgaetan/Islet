@@ -277,6 +277,21 @@ they pressed a hotkey to type.
   saturated primaries on a black bezel read as a toy, red already means
   *destructive* here, and green sits beside the short-break mint. The measurement
   is a floor to clear, never the designer.
+- **A silhouette centred to the point can still read as off-centre.** In Peek the
+  island measured perfect — notch at 790…1010, island at 670…1130, both centred
+  on 900.0, arms equal to the point — and it still looked wrong. The imbalance
+  was inside: the two slots aligned *inwards*, so both labels were pinned against
+  the notch and every bit of slack piled up at the rounded ends. The rhythm read
+  48.5 · text · 13.0 · NOTCH · 18.5 · text · 48.0 — nearly four to one. Centring
+  each label in its own arm spends the slack evenly: 30.8 · text · 30.8 · NOTCH ·
+  33.3 · text · 33.3, the residual 2.5 being the difference in the labels' own
+  widths. The notch is black on a black island, so it is invisible in a capture
+  and unmissable on the hardware — which is exactly why this had to be measured
+  against the notch's real edges rather than judged from a screenshot.
+- The island's drawn bounding box is 15 pt wider than its layout width, but only
+  above y = 4: that is the inverted corners flaring out to meet the menu bar, not
+  margin. Measuring the bounding box instead of the edge at the text's own height
+  would have put every one of these numbers out by 7.5 pt a side.
 - **Nothing revealed on hover may be taller than what it sits beside.** In the
   list window the category was an `NSPopUpButton` swapped in on hover — some
   24 pt against the 14 pt label it replaced — so every row grew under the pointer

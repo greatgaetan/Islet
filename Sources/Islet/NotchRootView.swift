@@ -225,6 +225,14 @@ private struct PeekContent: View {
             .padding(.bottom, 6)
     }
 
+    /// Each arm centres what it holds.
+    ///
+    /// The slots used to align *inwards* — `.trailing` on the left, `.leading`
+    /// on the right — which pinned both labels against the notch and left every
+    /// bit of slack at the rounded ends. Measured, the rhythm read
+    /// 56 · text · 13 · NOTCH · 18 · text · 55: four to one, and the eye reads
+    /// that as a shape that is not centred even though the silhouette is
+    /// centred to the point. Centring in the slot spends the slack evenly.
     private var controls: some View {
         HStack(spacing: 0) {
             HStack(spacing: 6) {
@@ -236,7 +244,7 @@ private struct PeekContent: View {
                     .lineLimit(1)
             }
             .padding(.horizontal, 12)
-            .frame(width: NotchMetrics.glyphSlot(for: .peek), alignment: .trailing)
+            .frame(width: NotchMetrics.glyphSlot(for: .peek))
 
             Spacer(minLength: 0)
                 .frame(width: model.notch.width)
@@ -270,7 +278,7 @@ private struct PeekContent: View {
                 }
             }
             .padding(.horizontal, 12)
-            .frame(width: NotchMetrics.glyphSlot(for: .peek), alignment: .leading)
+            .frame(width: NotchMetrics.glyphSlot(for: .peek))
             .contentShape(Rectangle())
             .onHover { hovering in
                 withAnimation(Motion.glyph) { isTimerHovered = hovering }
@@ -287,7 +295,7 @@ private struct PeekContent: View {
                 .foregroundStyle(.white.opacity(0.9))
                 .lineLimit(1)
                 .padding(.horizontal, 12)
-                .frame(width: NotchMetrics.glyphSlot(for: .peek), alignment: .trailing)
+                .frame(width: NotchMetrics.glyphSlot(for: .peek))
 
             Spacer(minLength: 0).frame(width: model.notch.width)
 
@@ -302,7 +310,7 @@ private struct PeekContent: View {
                 .frame(width: 20)
             }
             .padding(.horizontal, 12)
-            .frame(width: NotchMetrics.glyphSlot(for: .peek), alignment: .leading)
+            .frame(width: NotchMetrics.glyphSlot(for: .peek))
         }
     }
 
@@ -323,7 +331,7 @@ private struct PeekContent: View {
                 .foregroundStyle(model.pomodoro.current?.kind.tint ?? .white)
                 .lineLimit(1)
                 .padding(.horizontal, 12)
-                .frame(width: NotchMetrics.glyphSlot(for: .peek), alignment: .trailing)
+                .frame(width: NotchMetrics.glyphSlot(for: .peek))
 
             Spacer(minLength: 0)
                 .frame(width: model.notch.width)
@@ -333,7 +341,7 @@ private struct PeekContent: View {
                 .monospacedDigit()
                 .foregroundStyle(.white.opacity(0.7))
                 .padding(.horizontal, 12)
-                .frame(width: NotchMetrics.glyphSlot(for: .peek), alignment: .leading)
+                .frame(width: NotchMetrics.glyphSlot(for: .peek))
         }
     }
 
@@ -346,7 +354,7 @@ private struct PeekContent: View {
                 .foregroundStyle(.white.opacity(0.9))
                 .lineLimit(1)
                 .padding(.horizontal, 12)
-                .frame(width: NotchMetrics.glyphSlot(for: .peek), alignment: .trailing)
+                .frame(width: NotchMetrics.glyphSlot(for: .peek))
 
             Spacer(minLength: 0)
                 .frame(width: model.notch.width)
@@ -362,7 +370,7 @@ private struct PeekContent: View {
                 .frame(width: 22)
             }
             .padding(.horizontal, 12)
-            .frame(width: NotchMetrics.glyphSlot(for: .peek), alignment: .leading)
+            .frame(width: NotchMetrics.glyphSlot(for: .peek))
         }
     }
 }

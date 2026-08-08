@@ -160,7 +160,12 @@ private struct TaskRow: View {
                 }
                 .foregroundStyle(task.category.tint.opacity(task.isCompleted ? 0.4 : 0.9))
             }
-            .menuStyle(.borderlessButton)
+            // `.borderlessButton` looked right and was not: it repaints the
+            // label in its own colour — losing the category tint — draws its own
+            // indicator on the *leading* edge, and drops the rest of the label.
+            // `.button` + `.plain` hands the label back intact.
+            .menuStyle(.button)
+            .buttonStyle(.plain)
             .menuIndicator(.hidden)
             .fixedSize()
             .help("Change category")

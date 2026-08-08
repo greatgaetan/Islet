@@ -56,7 +56,7 @@ struct TaskListView: View {
             LazyVStack(spacing: 0) {
                 ForEach(model.visible) { task in
                     TaskRow(task: task, model: model)
-                    Divider().padding(.leading, 38)
+                    Divider().padding(.leading, 42)
                 }
             }
         }
@@ -103,6 +103,12 @@ private struct TaskRow: View {
                     .font(.system(size: 13))
                     .foregroundStyle(task.isCompleted ? AnyShapeStyle(.secondary)
                                                       : AnyShapeStyle(task.category.tint))
+                    // A bare `Image` label leaves the button with whatever hit
+                    // area the glyph happens to have. The frame is explicit and
+                    // capped at the line height, so the target is predictable
+                    // and the row's height still depends only on its text.
+                    .frame(width: 18, height: 16)
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
 

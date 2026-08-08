@@ -125,31 +125,43 @@ private struct TaskRow: View {
 
             Spacer(minLength: 0)
 
-            if isHovered {
-                Picker("", selection: category) {
-                    ForEach(TaskCategory.allCases) { category in
-                        Text(category.label).tag(category)
-                    }
+            // Nothing here may be taller than the text it sits beside, or the row
+            // changes height on hover and the whole list twitches under the
+            // pointer. The old `Picker` was a real `NSPopUpButton` — some 24 pt
+            // against the 14 pt label it replaced.
+            //
+            // So the category is a *menu wearing the label's clothes*: identical
+            // height, always visible, and directly clickable instead of hiding
+            // until hovered.
+            Menu {
+                ForEach(TaskCategory.allCases) { option in
+                    Button(option.label) { model.recategorise(task.id, to: option) }
                 }
-                .labelsHidden()
-                .frame(width: 106)
-
-                Button {
-                    model.delete(task.id)
-                } label: {
-                    Image(systemName: "trash")
-                        .font(.system(size: 12))
-                        .frame(width: 26, height: 20)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(.secondary)
-                .help("Delete")
-            } else {
+            } label: {
                 Text(task.category.label)
                     .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(task.category.tint.opacity(task.isCompleted ? 0.4 : 0.9))
             }
+            .menuStyle(.borderlessButton)
+            .menuIndicator(.hidden)
+            .fixedSize()
+            .help("Change category")
+
+            // Always in the hierarchy, never conditionally inserted, and capped
+            // at the line height so it can never grow the row.
+            Button {
+                model.delete(task.id)
+            } label: {
+                Image(systemName: "trash")
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
+                    .opacity(isHovered ? 1 : 0)
+                    .frame(width: 24, height: 16)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .allowsHitTesting(isHovered)
+            .help("Delete")
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 9)

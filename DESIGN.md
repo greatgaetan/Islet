@@ -277,6 +277,15 @@ they pressed a hotkey to type.
   saturated primaries on a black bezel read as a toy, red already means
   *destructive* here, and green sits beside the short-break mint. The measurement
   is a floor to clear, never the designer.
+- **Nothing revealed on hover may be taller than what it sits beside.** In the
+  list window the category was an `NSPopUpButton` swapped in on hover — some
+  24 pt against the 14 pt label it replaced — so every row grew under the pointer
+  and the list twitched. The rule that fixes it is stronger than "make it
+  shorter": the view tree is now **identical** hovered or not, differing only by
+  an `opacity` and an `allowsHitTesting`, neither of which affects layout. Height
+  cannot depend on hover because nothing is inserted or removed any more. The
+  category became a menu wearing the label's clothes — same height, always
+  visible, and directly clickable rather than hiding until hovered.
 - Deleting is reachable two ways on purpose: **swipe for when you know it, a
   hover trash button for when you don't.**
 - **A target is a slot, not the ink in it.** The trash started as a 10 pt glyph,

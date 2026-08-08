@@ -23,7 +23,7 @@
 	<key>CFBundleVersion</key>
 	<string>3</string>
 	<key>LSMinimumSystemVersion</key>
-	<string>26.0</string>
+	<string>14.0</string>
 	<!-- No Dock icon, no menu of its own: Islet is chrome, not an app window. -->
 	<key>LSUIElement</key>
 	<true/>

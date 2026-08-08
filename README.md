@@ -41,7 +41,7 @@ Data lives in `~/Library/Application Support/Islet/` as plain, readable JSON:
 
 ## Requirements
 
-- macOS 26 or later
+- macOS 14 (Sonoma) or later — it compiles for 14 unchanged, though it has only been *run* on 26
 - A Mac with a notch (Islet targets the built-in display and nothing else)
 - Xcode 26 / Swift 6.2 toolchain
 

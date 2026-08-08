@@ -26,8 +26,8 @@ struct NotchRootView: View {
                         .onEnded { model.endDrag(velocity: $0.velocity.height / 1000) }
                 )
                 .contextMenu {
-                    Button("Tasks") { model.onShowTasks?() }
-                    Button("Settings…") { model.onShowSettings?() }
+                    Button("Tasks") { model.showTasks() }
+                    Button("Settings…") { model.showSettings() }
                     Divider()
                     Button("Quit Islet") { NSApp.terminate(nil) }
                 }
@@ -400,7 +400,7 @@ private struct ExpandedContent: View {
             // ~175. Splitting equally was a reflex, and it crushed the chips.
             focus.frame(width: 215)
         }
-        .overlay(alignment: .topTrailing) { settingsGlyph }
+        .overlay(alignment: .topTrailing) { windowShortcuts }
         .padding(.top, model.notch.height + 16)
         .padding(.horizontal, 22)
         .padding(.bottom, 24)
@@ -511,15 +511,35 @@ private struct ExpandedContent: View {
         }
     }
 
-    /// ⌘, worked from the first day and was referenced nowhere — no Dock icon, no
-    /// status item, and a menu bar that only exists while Islet is active. A
-    /// shortcut nobody can discover is a shortcut nobody has.
-    private var settingsGlyph: some View {
-        NotchGlyph(symbol: "gearshape", restOpacity: 0.22) {
-            model.onShowSettings?()
+    /// ⌘L and ⌘, both worked from the day they were written and were named
+    /// nowhere — no Dock icon, no status item, and a menu bar that only exists
+    /// while Islet is active. So the keys are printed beside their glyphs, the
+    /// same as everywhere else in the app.
+    private var windowShortcuts: some View {
+        HStack(spacing: 10) {
+            shortcut(symbol: "list.bullet", key: "L", help: "Tasks") {
+                model.showTasks()
+            }
+            shortcut(symbol: "gearshape", key: ",", help: "Settings") {
+                model.showSettings()
+            }
         }
-        .frame(width: 22, height: 16)
-        .help("Settings — ⌘,")
+    }
+
+    private func shortcut(
+        symbol: String,
+        key: String,
+        help: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        HStack(spacing: 3) {
+            NotchGlyph(symbol: symbol, restOpacity: 0.22, action: action)
+                .frame(width: 16, height: 16)
+            Text("⌘\(key)")
+                .font(.system(size: 9, weight: .medium, design: .rounded))
+                .foregroundStyle(.white.opacity(0.22))
+        }
+        .help(help)
     }
 
     /// Three levels, and only three. A flat rhythm groups nothing.
@@ -1020,10 +1040,17 @@ private struct UndoRow: View {
                 .foregroundStyle(.white.opacity(0.5))
                 .lineLimit(1)
             Spacer(minLength: 0)
-            Button("Undo", action: action)
-                .buttonStyle(.plain)
-                .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(.white.opacity(0.9))
+            Button(action: action) {
+                HStack(spacing: 4) {
+                    Text("Undo")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.9))
+                    Text("⌘Z")
+                        .font(.system(size: 9, weight: .medium, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.4))
+                }
+            }
+            .buttonStyle(.plain)
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 6)

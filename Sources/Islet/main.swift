@@ -31,6 +31,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         default: break
         }
 
+        windows.onWindowPresented = { [controller] in controller.collapsePanel() }
         MainMenu.install(target: windows)
 
         // The system can change this while Islet is running, so it is read now

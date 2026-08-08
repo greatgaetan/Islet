@@ -9,6 +9,10 @@ import SwiftUI
 final class WindowManager: NSObject {
     private let tasks: TaskModel
     private let settings: SettingsModel
+    /// Fires whenever a window comes forward, whatever route brought it there —
+    /// the gear, the context menu, ⌘L, ⌘,. A single choke point, so no path can
+    /// forget to collapse the island behind it.
+    var onWindowPresented: (() -> Void)?
 
     private var taskWindow: NSWindow?
     private var settingsWindow: NSWindow?
@@ -92,5 +96,8 @@ final class WindowManager: NSObject {
     private func present(_ window: NSWindow) {
         NSApp.activate()
         window.makeKeyAndOrderFront(nil)
+        // A window is in front now. Leaving the panel hanging open behind it
+        // says two things are demanding attention when only one is.
+        onWindowPresented?()
     }
 }

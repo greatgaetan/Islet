@@ -52,11 +52,15 @@ struct RecapCards: View {
 
             Spacer(minLength: 0)
 
+            Text("esc")
+                .font(.system(size: 9, weight: .medium, design: .rounded))
+                .foregroundStyle(.white.opacity(0.22))
+
             // Stopping halfway loses nothing: whatever is unanswered rolls to
             // tomorrow. Saying so out loud is what makes it safe to stop.
             NotchGlyph(symbol: "xmark", restOpacity: 0.3) { model.dismissRecap() }
                 .frame(width: 22, height: 16)
-                .help("Finish later — nothing is lost")
+                .help("Finish later, or press Escape — nothing is lost")
         }
     }
 

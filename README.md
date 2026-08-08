@@ -88,8 +88,9 @@ pkill -f Islet
 | Hover a task | a trash button appears, and **⌫** deletes it — the swipe is for when you know it, the button for when you don't |
 | Look at the row marks | a cyan disc, an amber clock, an azure person — shape *and* colour, so the **All** view needs no words and the categories survive colour blindness |
 | Swipe a task left | deleted — by distance **or** by a quick flick — with a 4 s Undo where the row was |
-| ⌘L | the list window, with category filters |
+| ⌘L | the list window, with category filters — the key is printed in the panel, beside its glyph |
 | ⌘, | settings: durations, review hour, sound, export, login item |
+| Open either window | the island collapses — a window is in front, so the panel has nothing left to say |
 | Hover a task and press the timer glyph | the session runs **on** that task, and its title shows in the notch while it does |
 | Check or delete the active task mid-session | the session carries on and simply becomes untied — finishing early is not punished |
 | At 18:00 | the review opens itself. Leave it untouched for half an hour and it rolls to tomorrow — or turn off *Open it automatically* in settings and it waits on the notch as a single dot |

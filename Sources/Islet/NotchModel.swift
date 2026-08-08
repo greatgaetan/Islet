@@ -378,6 +378,19 @@ final class NotchModel {
         send(.dismissRequested)
     }
 
+    /// Stand down because a window took over. A review in progress is ended
+    /// properly rather than merely hidden — its unanswered cards roll to
+    /// tomorrow, which is the promise it makes.
+    func showTasks() { onShowTasks?() }
+    func showSettings() { onShowSettings?() }
+
+    func dismissForWindow() {
+        guard state == .expanded || state == .peek else { return }
+        if recap.isReviewing { recap.dismiss() }
+        tasks.clearDraft()
+        send(.dismissRequested)
+    }
+
     func toggleTimer() {
         clearAnnouncement()
         pomodoro.primaryAction()

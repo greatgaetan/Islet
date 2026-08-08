@@ -57,6 +57,11 @@ final class NotchController {
         )
     }
 
+    /// Get out of the way: a window just came forward.
+    func collapsePanel() {
+        model?.dismissForWindow()
+    }
+
     func screenParametersChanged() {
         configure()
     }

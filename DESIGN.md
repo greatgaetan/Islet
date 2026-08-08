@@ -137,8 +137,17 @@ is the active app. Three things followed from that, and the third was serious:
   release — the very pop the blur exists to prevent), and the grabber has to hide
   the moment the drag starts, because Peek keeps its own height while the
   silhouette grows past it and leaves the grabber marooned mid-panel.
-- **⌘, worked from day one and was written nowhere.** A quiet gear sits at the
-  panel's top-right, and both empty states name the shortcut.
+- **⌘L and ⌘, worked from the day they were written and were named nowhere.**
+  Both now sit at the panel's top-right as a glyph with its key printed beside
+  it — the same rule the category chips and the review's buttons already follow:
+  a shortcut nobody sees is a shortcut nobody uses. ⌘Z is printed on the undo
+  row, and `esc` in the review's header, for the same reason.
+- **Opening a window collapses the island.** A window in front while the panel
+  hangs open behind it says two things want attention when only one does. Every
+  route into a window — the glyphs, the context menu, ⌘L, ⌘, — passes through a
+  single choke point, so no path can forget. A review in progress is *ended*
+  rather than hidden: its unanswered cards roll to tomorrow, which is the promise
+  it makes.
 - **There was no way to quit.** Not a discoverability problem — an actual dead
   end, escapable only with `pkill`. Right-clicking the silhouette now opens
   Tasks, Settings and Quit. The macOS idiom, and it costs no pixels.

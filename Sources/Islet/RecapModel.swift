@@ -14,7 +14,31 @@ final class RecapModel {
         case reviewing
     }
 
-    enum Action { case done, tomorrow, postpone, delegate, delete }
+    enum Action: CaseIterable {
+        case done, tomorrow, postpone, delegate, delete
+
+        public var label: String {
+            switch self {
+            case .done: "Done"
+            case .tomorrow: "Tomorrow"
+            case .postpone: "Defer"
+            case .delegate: "Delegate"
+            case .delete: "Delete"
+            }
+        }
+
+        /// The digit shown on the button. Display only — the keystroke is matched
+        /// by key code, because on a French layout the key printed "1" produces
+        /// `&` and a character comparison could never fire.
+        public var shortcut: String { String(Self.allCases.firstIndex(of: self)! + 1) }
+
+        static func forKeyCode(_ keyCode: UInt16) -> Action? {
+            let digits: [UInt16] = [18, 19, 20, 21, 23]   // kVK_ANSI_1 … _5
+            guard let index = digits.firstIndex(of: keyCode),
+                  index < allCases.count else { return nil }
+            return allCases[index]
+        }
+    }
 
     private(set) var phase: Phase = .idle
     private(set) var cards: [RecapCard] = []
@@ -31,6 +55,7 @@ final class RecapModel {
 
     private let tasks: TaskModel
     private var settings: () -> Int = { 18 }
+    private var opensItself: () -> Bool = { true }
     private var ticker: Task<Void, Never>?
     private var patience: Task<Void, Never>?
 
@@ -38,8 +63,10 @@ final class RecapModel {
         self.tasks = tasks
     }
 
-    func start(recapHour: @escaping () -> Int) {
+    func start(recapHour: @escaping () -> Int,
+               opensItself: @escaping () -> Bool) {
         settings = recapHour
+        self.opensItself = opensItself
         ticker?.cancel()
         ticker = Task { [weak self] in
             while !Task.isCancelled {
@@ -70,14 +97,31 @@ final class RecapModel {
 
         cards = due
         index = 0
-        setPhase(.pending)
 
-        // Left alone, it gives up rather than nagging.
+        // Insisting is the point: a review you are never pulled into is a review
+        // you never do. It costs one keystroke to escape, and the setting turns
+        // the insistence off for good.
+        if opensItself() {
+            setPhase(.reviewing)
+        } else {
+            setPhase(.pending)
+        }
+
+        startPatience()
+    }
+
+    /// Left *untouched* — not merely left open — it gives up and rolls over.
+    ///
+    /// The distinction matters now that it opens itself: a panel that insisted on
+    /// appearing and then sat there all evening would be worse than one that
+    /// never appeared. Every answer resets the clock, so a review in progress is
+    /// never closed underneath you.
+    private func startPatience() {
         patience?.cancel()
         patience = Task { [weak self] in
             try? await Task.sleep(for: .seconds(RecapSchedule.patience))
-            guard !Task.isCancelled, let self, phase == .pending else { return }
-            log("recap ignored — trying again tomorrow")
+            guard !Task.isCancelled, let self, phase != .idle else { return }
+            log("recap untouched for \(Int(RecapSchedule.patience / 60)) min — rolling to tomorrow")
             finish(now: .now)
         }
     }
@@ -86,8 +130,8 @@ final class RecapModel {
 
     func beginReview() {
         guard phase == .pending else { return }
-        patience?.cancel()
         setPhase(.reviewing)
+        startPatience()
     }
 
     func answer(_ action: Action, now: Date = .now) {
@@ -111,7 +155,7 @@ final class RecapModel {
         }
 
         withAnimation(Motion.contentIn) { index += 1 }
-        if current == nil { finish(now: now) }
+        if current == nil { finish(now: now) } else { startPatience() }
     }
 
     /// Stopping halfway is not a failure — whatever was not answered simply rolls

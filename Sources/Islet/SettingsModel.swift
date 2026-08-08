@@ -39,6 +39,12 @@ final class SettingsModel {
         scheduleSave()
     }
 
+    func setRecapOpensItself(_ enabled: Bool) {
+        guard enabled != settings.recapOpensItself else { return }
+        settings.recapOpensItself = enabled
+        scheduleSave()
+    }
+
     func setPlaysSound(_ enabled: Bool) {
         guard enabled != settings.playsSound else { return }
         settings.playsSound = enabled

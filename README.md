@@ -91,8 +91,8 @@ pkill -f Islet
 | ⌘, | settings: durations, review hour, sound, export, login item |
 | Hover a task and press the timer glyph | the session runs **on** that task, and its title shows in the notch while it does |
 | Check or delete the active task mid-session | the session carries on and simply becomes untied — finishing early is not punished |
-| At 18:00 | one dot appears on the notch. Hover it and the review offers itself; ignore it for half an hour and it tries again tomorrow |
-| Open the review | one card at a time — Done / Tomorrow / Defer / Delegate / Delete. Stop halfway and the rest rolls to tomorrow |
+| At 18:00 | the review opens itself. Leave it untouched for half an hour and it rolls to tomorrow — or turn off *Open it automatically* in settings and it waits on the notch as a single dot |
+| Answer the review | one card at a time — **⌘1** Done, **⌘2** Tomorrow, **⌘3** Defer, **⌘4** Delegate, **⌘5** Delete, or click. Escape stops, and the rest rolls to tomorrow |
 | Move the pointer away | it collapses after a 400 ms grace period |
 | Close the lid and keep working on an external display | the timer keeps running; segment ends arrive as system notifications |
 | Send a window full screen | Islet retracts into the bezel, and returns when you touch the top edge |
@@ -128,7 +128,7 @@ ISLET_FAST=1 ISLET_AUTOSTART=1 ISLET_SLOWMO=5 swift run   # the useful combinati
 swift test
 ```
 
-111 tests. The state machine, the geometry, the Pomodoro plan and every task
+114 tests. The state machine, the geometry, the Pomodoro plan and every task
 operation are pure, so all of them are tested. The views are not — see
 [DESIGN.md](DESIGN.md).
 

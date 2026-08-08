@@ -11,11 +11,12 @@ public enum NotchState: String, Sendable, CaseIterable {
     /// (full-screen space, auto-hidden menu bar).
     case hidden
 
-    /// At rest: the notch widened by a glyph slot on each side.
-    case resting
-
-    /// A timer is running: progress ring on the right, active task on the left.
-    case live
+    /// At rest. What it *shows* depends on whether a timer is running — glyphs
+    /// when it is not, a ring and a countdown when it is — but that was never a
+    /// distinction the machine acted on. Every rule treated the two identically,
+    /// so it was a difference in appearance being carried as a difference in
+    /// state. The appearance now lives with the view, where it belongs.
+    case idle
 
     /// Pointer dwelled: controls become touchable.
     case peek
@@ -59,7 +60,7 @@ public struct NotchStateMachine: Equatable, Sendable {
         case presentedByKeyboard
     }
 
-    public private(set) var state: NotchState = .resting
+    public private(set) var state: NotchState = .idle
     public private(set) var isPointerInside = false
     public private(set) var isTimerActive = false
     public private(set) var isEditing = false
@@ -77,9 +78,10 @@ public struct NotchStateMachine: Equatable, Sendable {
     /// A running timer outranks hidden chrome: in a full-screen space the ring
     /// stays visible, because that is exactly when a quiet timer is worth most.
     public var restState: NotchState {
-        if isTimerActive { return .live }
-        if isChromeHidden && !isPointerInside { return .hidden }
-        return .resting
+        // A running timer outranks hidden chrome: in a full-screen space the ring
+        // stays visible, because that is exactly when a quiet timer is worth most.
+        if isChromeHidden && !isPointerInside && !isTimerActive { return .hidden }
+        return .idle
     }
 
     @discardableResult
@@ -102,7 +104,7 @@ public struct NotchStateMachine: Equatable, Sendable {
             isPointerInside = false
 
         case .dwellElapsed:
-            guard isPointerInside, state == .resting || state == .live else { break }
+            guard isPointerInside, state == .idle else { break }
             state = .peek
 
         case .graceElapsed:
@@ -123,11 +125,13 @@ public struct NotchStateMachine: Equatable, Sendable {
 
         case .timerBecameActive:
             isTimerActive = true
-            if state == .hidden || state == .resting { state = restState }
+            // Only ever reveals a retracted surface; the idle state's *look*
+            // follows the flag without the machine having to move anywhere.
+            if state == .hidden { state = restState }
 
         case .timerBecameIdle:
             isTimerActive = false
-            if state == .live { state = restState }
+            if state == .idle { state = restState }
 
         case .editingBegan:
             isEditing = true
@@ -142,7 +146,7 @@ public struct NotchStateMachine: Equatable, Sendable {
 
         case .chromeHidden:
             isChromeHidden = true
-            if state == .resting { state = restState }
+            if state == .idle { state = restState }
 
         case .chromeShown:
             isChromeHidden = false

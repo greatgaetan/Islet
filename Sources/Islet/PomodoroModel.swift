@@ -65,14 +65,19 @@ final class PomodoroModel {
 
     func start() {
         now = .now
-        session = PomodoroSession(configuration: configuration, startingAt: now)
+        // The idle silhouette widens to hold the countdown. It used to be a state
+        // transition with its own animation; it is a content change now, and it
+        // still earns the same moment.
+        withAnimation(Motion.timerAppeared) {
+            session = PomodoroSession(configuration: configuration, startingAt: now)
+        }
         onActiveChanged?(true)
         startTicking()
         scheduleSegmentEnd()
     }
 
     func stop() {
-        session = nil
+        withAnimation(Motion.timerAppeared) { session = nil }
         stopClocks()
         onActiveChanged?(false)
     }

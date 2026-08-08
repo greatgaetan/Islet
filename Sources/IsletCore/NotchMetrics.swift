@@ -38,11 +38,10 @@ public struct NotchMetrics: Equatable, Sendable {
     }
 
     /// Width of one glyph slot beside the notch, per state.
-    public static func glyphSlot(for state: NotchState) -> CGFloat {
+    public static func glyphSlot(for state: NotchState, showsTimer: Bool = false) -> CGFloat {
         switch state {
         case .hidden: 0
-        case .resting: 28
-        case .live: 84
+        case .idle: showsTimer ? 84 : 28
         case .peek: 120
         case .expanded: 0
         }
@@ -91,20 +90,21 @@ public struct NotchMetrics: Equatable, Sendable {
     public static func forState(
         _ state: NotchState,
         notch: NotchDimensions,
-        expandedHeight: CGFloat? = nil
+        expandedHeight: CGFloat? = nil,
+        showsTimer: Bool = false
     ) -> NotchMetrics {
-        let slot = glyphSlot(for: state)
+        let slot = glyphSlot(for: state, showsTimer: showsTimer)
         switch state {
         case .hidden:
             // Exactly the hardware: drawn black on black, invisible.
             return .init(width: notch.width, height: notch.height,
                          bottomRadius: 0, invertedRadius: 0)
-        case .resting:
+        case .idle:
+            // Same shape, wider when there is a countdown to hold. One state, one
+            // rule: the silhouette fits what it carries.
             return .init(width: notch.width + slot * 2, height: notch.height,
-                         bottomRadius: 10, invertedRadius: 8)
-        case .live:
-            return .init(width: notch.width + slot * 2, height: notch.height,
-                         bottomRadius: 12, invertedRadius: 9)
+                         bottomRadius: showsTimer ? 12 : 10,
+                         invertedRadius: showsTimer ? 9 : 8)
         case .peek:
             return .init(width: notch.width + slot * 2, height: notch.height + 22,
                          bottomRadius: 16, invertedRadius: 10)

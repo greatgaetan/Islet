@@ -43,10 +43,12 @@ struct SettingsView: View {
                         Text(String(format: "%02d:00", hour)).tag(hour)
                     }
                 }
+                Toggle("Open it automatically", isOn: recapOpensItself)
                 Text("It widens the notch once and then keeps quiet. Left alone for "
                      + "half an hour it gives up and tries again tomorrow, and anything "
                      + "you do not answer simply rolls to tomorrow — stopping halfway "
-                     + "loses nothing.")
+                     + "loses nothing. Turn the switch off and it waits on the notch "
+                     + "until you ask for it.")
                     .font(.system(size: 11))
                     .foregroundStyle(.tertiary)
             }
@@ -113,6 +115,11 @@ struct SettingsView: View {
     private var longBreak: Binding<Int> {
         Binding(get: { model.pomodoro.longBreakMinutes },
                 set: { var c = model.pomodoro; c.longBreakMinutes = $0; model.pomodoro = c })
+    }
+
+    private var recapOpensItself: Binding<Bool> {
+        Binding(get: { model.settings.recapOpensItself },
+                set: { model.setRecapOpensItself($0) })
     }
 
     private var recapHour: Binding<Int> {

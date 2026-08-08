@@ -43,10 +43,8 @@ struct NotchRootView: View {
 
     private var content: some View {
         ZStack(alignment: .top) {
-            RestingContent(model: model)
-                .notchLayer(model.state == .resting)
-            LiveContent(model: model)
-                .notchLayer(model.state == .live)
+            IdleContent(model: model)
+                .notchLayer(model.state == .idle)
             PeekContent(model: model, isVisible: model.state == .peek)
                 .notchLayer(model.state == .peek,
                             opacity: model.dragProgress.map { 1 - Double($0) })
@@ -99,19 +97,47 @@ private extension View {
     }
 }
 
-// MARK: - Resting
+// MARK: - Idle
 
-private struct RestingContent: View {
+/// One state, two appearances.
+///
+/// These were two states — `resting` and `live` — but the machine never acted on
+/// the difference: every rule treated them as one, and the only thing that
+/// changed was what was drawn and how wide. That is a view's business, not a
+/// state machine's, so it lives here now.
+private struct IdleContent: View {
     let model: NotchModel
+
+    private var slot: CGFloat {
+        NotchMetrics.glyphSlot(for: .idle, showsTimer: model.showsTimer)
+    }
 
     var body: some View {
         HStack(spacing: 0) {
+            leading.frame(width: slot, alignment: model.showsTimer ? .center : .center)
+            Spacer(minLength: 0).frame(width: model.notch.width)
+            trailing.frame(width: slot, alignment: .center)
+        }
+        .frame(height: model.notch.height)
+    }
+
+    @ViewBuilder
+    private var leading: some View {
+        if model.showsTimer {
+            // The active task if a session runs on one, otherwise the segment.
+            // Never blank: an empty half beside a full one reads as something
+            // missing rather than something absent.
+            Text(model.tasks.activeTask?.title ?? model.pomodoro.current?.kind.label ?? "")
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(.white.opacity(0.6))
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .padding(.horizontal, 10)
+        } else {
             NotchGlyph(symbol: "plus") { model.send(.clicked) }
-                .frame(width: NotchMetrics.glyphSlot(for: .resting))
                 .overlay(alignment: .topTrailing) {
                     // The evening review announces itself with one dot and then
-                    // shuts up. Anything louder, at 18:00 during a call, is an
-                    // app you uninstall.
+                    // shuts up.
                     if model.recap.isPending {
                         Circle()
                             .fill(TaskCategory.toDo.tint)
@@ -119,42 +145,12 @@ private struct RestingContent: View {
                             .offset(x: 1, y: 2)
                     }
                 }
-            Spacer(minLength: 0)
-                .frame(width: model.notch.width)
-            NotchGlyph(symbol: model.pomodoro.isRunning ? "pause.fill" : "play.fill") {
-                model.toggleTimer()
-            }
-            .frame(width: NotchMetrics.glyphSlot(for: .resting))
         }
-        .frame(height: model.notch.height)
     }
-}
 
-// MARK: - Live
-
-private struct LiveContent: View {
-    let model: NotchModel
-
-    var body: some View {
-        HStack(spacing: 0) {
-            // The active task if a session is running on one, otherwise the
-            // segment name. Never blank: an empty half beside a full one reads
-            // as something missing rather than something absent.
-            Text(model.tasks.activeTask?.title ?? model.pomodoro.current?.kind.label ?? "")
-                .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(.white.opacity(0.6))
-                .lineLimit(1)
-                .truncationMode(.tail)
-                .padding(.horizontal, 10)
-                // Centred in its half, not flush against the notch: the label is
-                // often much shorter than the slot ("Focus" against "Long break"),
-                // and hugging the notch left a void on the outside that made the
-                // two halves look mismatched.
-                .frame(width: NotchMetrics.glyphSlot(for: .live), alignment: .center)
-
-            Spacer(minLength: 0)
-                .frame(width: model.notch.width)
-
+    @ViewBuilder
+    private var trailing: some View {
+        if model.showsTimer {
             HStack(spacing: 6) {
                 ProgressRing(progress: model.pomodoro.progress,
                              tint: model.pomodoro.current?.kind.tint ?? .white)
@@ -166,10 +162,10 @@ private struct LiveContent: View {
                     .contentTransition(.numericText(countsDown: true))
             }
             .padding(.horizontal, 10)
-            .frame(width: NotchMetrics.glyphSlot(for: .live), alignment: .center)
+            .opacity(model.pomodoro.isRunning ? 1 : 0.55)
+        } else {
+            NotchGlyph(symbol: "play.fill") { model.toggleTimer() }
         }
-        .frame(height: model.notch.height)
-        .opacity(model.pomodoro.isRunning ? 1 : 0.55)
     }
 }
 
@@ -188,7 +184,7 @@ private struct PeekContent: View {
             Group {
                 if model.recap.isPending {
                     recapInvitation
-                } else if model.isAwaitingDecision {
+                } else if model.pomodoro.isFinished {
                     decision
                 } else if let announcement = model.announcement {
                     self.announcement(announcement)
@@ -593,21 +589,34 @@ struct PanelButton: View {
     }
 
     let title: String
+    /// The ⌘ digit that does the same thing, printed where it can be learned.
+    let shortcut: String?
     let emphasis: Emphasis
     let action: () -> Void
 
     @State private var isHovered = false
     @State private var isPressed = false
 
-    init(_ title: String, emphasis: Emphasis = .secondary, action: @escaping () -> Void) {
+    init(_ title: String,
+         shortcut: String? = nil,
+         emphasis: Emphasis = .secondary,
+         action: @escaping () -> Void) {
         self.title = title
+        self.shortcut = shortcut
         self.emphasis = emphasis
         self.action = action
     }
 
     var body: some View {
-        Text(title)
-            .font(.system(size: 11, weight: emphasis == .primary ? .semibold : .medium))
+        HStack(spacing: 5) {
+            Text(title)
+                .font(.system(size: 11, weight: emphasis == .primary ? .semibold : .medium))
+            if let shortcut {
+                Text("⌘\(shortcut)")
+                    .font(.system(size: 9, weight: .semibold, design: .rounded))
+                    .opacity(0.5)
+            }
+        }
             .foregroundStyle(foreground)
             .padding(.horizontal, 12)
             .padding(.vertical, 6)

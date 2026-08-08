@@ -60,7 +60,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             await history.load()
             // Only after the list is on disk-backed footing: offering to review
             // an empty board because loading had not finished would be absurd.
-            recap.start(recapHour: { [settings] in settings.settings.recapHour })
+            recap.start(recapHour: { [settings] in settings.settings.recapHour },
+                        opensItself: { [settings] in settings.settings.recapOpensItself })
             controller.seedForVerification()
 
             // The window opens by itself exactly once, ever: on a first launch

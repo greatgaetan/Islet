@@ -26,8 +26,7 @@ The stated goal is not the feature set. It is that the motion feels native.
 | State | Silhouette | Contents |
 |---|---|---|
 | `hidden` | exactly the physical notch | nothing — invisible against the bezel |
-| `resting` | notch + 28 pt each side | `+` glyph left, play glyph right, 35 % opacity |
-| `live` | notch + 84 pt each side | active task title left, progress ring + time right |
+| `idle` | notch + 28 pt, or + 84 pt with a timer | glyphs at rest; active task, ring and countdown while a session runs |
 | `peek` | notch + 120 pt, +22 pt tall | task count + `+`, play/pause + time, and a **grabber** |
 | `expanded` | 640 × **content-sized**, 230–394 pt | two columns: list & quick-add, timer & controls |
 
@@ -43,6 +42,15 @@ means the rest state is `live`, not `resting`.
 `hidden` is the retracted silhouette rather than a hidden window, so **every
 transition is the morph of a shape that already exists**. Nothing appears from
 nothing.
+
+**`resting` and `live` were merged.** They differed only in width and in what
+they drew — the machine never *acted* on the difference: every rule treated them
+as one (`state == .resting || state == .live`, everywhere). A distinction the
+logic only transports is a presentation concern wearing a state's clothes, so it
+moved to the view. One state fewer, one transition fewer, and the silhouette now
+follows its content here exactly as the expanded panel's height follows its rows.
+The widening when a session starts is unchanged; it is a content change now
+rather than a state change, and it keeps its own animation.
 
 Islet mirrors its host: where macOS hides the menu bar (full-screen space,
 auto-hide setting), Islet retracts; where macOS reveals it on a top-edge
@@ -325,9 +333,17 @@ session; it simply becomes global. No "here's the next one" conveyor.
 
 ## The evening recap
 
-- Configurable hour, 18:00 by default. The notch goes `live` with a badge that
-  pulses once, and expands **only on hover**. Ignored for 30 minutes, it drops
-  back and retries tomorrow. Never during a full-screen app or a Focus mode.
+- Configurable hour, 18:00 by default. **It opens itself**, into the full panel.
+  Originally it only showed a badge and waited to be hovered — reversed, because
+  a ritual you are never pulled into is a ritual you never perform. Insisting is
+  acceptable precisely because escaping costs one keystroke, and because a switch
+  in settings turns the insistence off for good, leaving the discreet badge.
+  Never during a full-screen app.
+- Untouched for 30 minutes it gives up and rolls over — **untouched**, not merely
+  open: every answer resets the clock, so a review in progress is never closed
+  underneath you.
+- Every action is one click **or** one keystroke, ⌘1 to ⌘5, and the digit is
+  printed on the button. Escape ends the review; the rest rolls to tomorrow.
 - Card-by-card triage, one task at a time: done / tomorrow / defer / delegate /
   delete. Triage is the ritual, not reading.
 - Ignored means nothing is lost: everything rolls to tomorrow.

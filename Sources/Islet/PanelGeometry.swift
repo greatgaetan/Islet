@@ -35,11 +35,11 @@ struct PanelGeometry {
 
     /// Rects that may receive clicks, in window coordinates (AppKit, y-up).
     /// Everything else falls through to the menu bar underneath.
-    func interactiveRects(for state: NotchState) -> [CGRect] {
-        let slot = NotchMetrics.glyphSlot(for: state)
+    func interactiveRects(for state: NotchState, showsTimer: Bool = false) -> [CGRect] {
+        let slot = NotchMetrics.glyphSlot(for: state, showsTimer: showsTimer)
         guard slot > 0 else { return [] }
 
-        let metrics = NotchMetrics.forState(state, notch: notch)
+        let metrics = NotchMetrics.forState(state, notch: notch, showsTimer: showsTimer)
         let centerX = size.width / 2
         let y = size.height - metrics.height
 

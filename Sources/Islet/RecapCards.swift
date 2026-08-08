@@ -60,13 +60,25 @@ struct RecapCards: View {
         }
     }
 
+    /// Every action is one click *or* one keystroke, and the keystroke is printed
+    /// on the button — a shortcut nobody sees is a shortcut nobody uses.
     private var actions: some View {
         HStack(spacing: 8) {
-            PanelButton("Done", emphasis: .primary) { model.answerRecap(.done) }
-            PanelButton("Tomorrow") { model.answerRecap(.tomorrow) }
-            PanelButton("Defer") { model.answerRecap(.postpone) }
-            PanelButton("Delegate") { model.answerRecap(.delegate) }
-            PanelButton("Delete", emphasis: .quiet) { model.answerRecap(.delete) }
+            ForEach(Array(RecapModel.Action.allCases.enumerated()), id: \.offset) { _, action in
+                PanelButton(action.label,
+                            shortcut: action.shortcut,
+                            emphasis: emphasis(for: action)) {
+                    model.answerRecap(action)
+                }
+            }
+        }
+    }
+
+    private func emphasis(for action: RecapModel.Action) -> PanelButton.Emphasis {
+        switch action {
+        case .done: .primary
+        case .delete: .quiet
+        default: .secondary
         }
     }
 

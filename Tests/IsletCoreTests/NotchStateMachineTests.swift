@@ -3,13 +3,13 @@ import XCTest
 
 final class NotchStateMachineTests: XCTestCase {
     func testStartsAtRest() {
-        XCTAssertEqual(NotchStateMachine().state, .resting)
+        XCTAssertEqual(NotchStateMachine().state, .idle)
     }
 
     func testDwellIsRequiredToReachPeek() {
         var machine = NotchStateMachine()
         machine.handle(.pointerEntered)
-        XCTAssertEqual(machine.state, .resting, "entering alone must not expand anything")
+        XCTAssertEqual(machine.state, .idle, "entering alone must not expand anything")
         machine.handle(.dwellElapsed)
         XCTAssertEqual(machine.state, .peek)
     }
@@ -19,7 +19,7 @@ final class NotchStateMachineTests: XCTestCase {
         machine.handle(.pointerEntered)
         machine.handle(.pointerExited)
         machine.handle(.dwellElapsed)
-        XCTAssertEqual(machine.state, .resting, "a late dwell must not resurrect the panel")
+        XCTAssertEqual(machine.state, .idle, "a late dwell must not resurrect the panel")
     }
 
     func testClickShortCircuitsDwell() {
@@ -37,7 +37,7 @@ final class NotchStateMachineTests: XCTestCase {
         XCTAssertEqual(machine.state, .expanded, "pointer still inside")
         machine.handle(.pointerExited)
         machine.handle(.graceElapsed)
-        XCTAssertEqual(machine.state, .resting)
+        XCTAssertEqual(machine.state, .idle)
     }
 
     func testEditingLocksThePanelOpen() {
@@ -48,19 +48,38 @@ final class NotchStateMachineTests: XCTestCase {
         XCTAssertEqual(machine.state, .expanded, "typed text must never be lost to a stray pointer")
         machine.handle(.editingEnded)
         machine.handle(.graceElapsed)
-        XCTAssertEqual(machine.state, .resting)
+        XCTAssertEqual(machine.state, .idle)
     }
 
-    func testRunningTimerRestsInLive() {
+    /// The point of merging `resting` and `live`: a timer starting changes what
+    /// the surface *shows*, and nothing about where it *is*.
+    func testStartingATimerDoesNotMoveTheSurface() {
+        var machine = NotchStateMachine()
+        XCTAssertEqual(machine.state, .idle)
+        machine.handle(.timerBecameActive)
+        XCTAssertEqual(machine.state, .idle, "the appearance changed; the state did not")
+        machine.handle(.timerBecameIdle)
+        XCTAssertEqual(machine.state, .idle)
+    }
+
+    func testATimerStartingWhileExpandedDoesNotYankThePanelShut() {
+        var machine = NotchStateMachine()
+        machine.handle(.pointerEntered)
+        machine.handle(.clicked)
+        machine.handle(.timerBecameActive)
+        XCTAssertEqual(machine.state, .expanded)
+    }
+
+    func testATimerRunningStillRestsAtIdle() {
         var machine = NotchStateMachine()
         machine.handle(.timerBecameActive)
-        XCTAssertEqual(machine.state, .live)
+        XCTAssertEqual(machine.state, .idle)
         machine.handle(.pointerEntered)
         machine.handle(.dwellElapsed)
         XCTAssertEqual(machine.state, .peek)
         machine.handle(.pointerExited)
         machine.handle(.graceElapsed)
-        XCTAssertEqual(machine.state, .live, "falls back to Live, not Resting")
+        XCTAssertEqual(machine.state, .idle, "back to idle, not to hidden or peek")
     }
 
     func testHiddenChromeRetractsButATimerStillWins() {
@@ -69,7 +88,7 @@ final class NotchStateMachineTests: XCTestCase {
         XCTAssertEqual(machine.state, .hidden)
 
         machine.handle(.timerBecameActive)
-        XCTAssertEqual(machine.state, .live, "a quiet ring is worth most in full screen")
+        XCTAssertEqual(machine.state, .idle, "a quiet ring is worth most in full screen")
 
         machine.handle(.timerBecameIdle)
         XCTAssertEqual(machine.state, .hidden)
@@ -79,7 +98,7 @@ final class NotchStateMachineTests: XCTestCase {
         var machine = NotchStateMachine()
         machine.handle(.chromeHidden)
         machine.handle(.pointerEntered)
-        XCTAssertEqual(machine.state, .resting, "mirrors how the menu bar reveals itself")
+        XCTAssertEqual(machine.state, .idle, "mirrors how the menu bar reveals itself")
         machine.handle(.pointerExited)
         machine.handle(.graceElapsed)
         XCTAssertEqual(machine.state, .hidden)
@@ -100,7 +119,7 @@ final class NotchStateMachineTests: XCTestCase {
         machine.handle(.announcementBegan)
         XCTAssertEqual(machine.state, .peek)
         machine.handle(.announcementEnded)
-        XCTAssertEqual(machine.state, .live)
+        XCTAssertEqual(machine.state, .idle)
     }
 
     func testAnnouncementNeverYanksAnOpenPanelShut() {
@@ -116,7 +135,7 @@ final class NotchStateMachineTests: XCTestCase {
         machine.handle(.chromeHidden)
         machine.handle(.timerBecameActive)
         machine.handle(.announcementBegan)
-        XCTAssertEqual(machine.state, .live, "only the ring hue changes in full screen")
+        XCTAssertEqual(machine.state, .idle, "only the ring hue changes in full screen")
     }
 
     func testAnnouncementDoesNotCloseUnderThePointer() {
@@ -142,7 +161,7 @@ final class NotchStateMachineTests: XCTestCase {
 
         machine.handle(.decisionResolved)
         machine.handle(.graceElapsed)
-        XCTAssertEqual(machine.state, .resting)
+        XCTAssertEqual(machine.state, .idle)
     }
 
     // MARK: - Summoned from the keyboard
@@ -168,14 +187,14 @@ final class NotchStateMachineTests: XCTestCase {
 
         machine.handle(.pointerExited)
         machine.handle(.graceElapsed)
-        XCTAssertEqual(machine.state, .resting, "from then on it behaves like any hover")
+        XCTAssertEqual(machine.state, .idle, "from then on it behaves like any hover")
     }
 
     func testEscapeClosesAPanelThePointerNeverTouched() {
         var machine = NotchStateMachine()
         machine.handle(.presentedByKeyboard)
         machine.handle(.dismissRequested)
-        XCTAssertEqual(machine.state, .resting)
+        XCTAssertEqual(machine.state, .idle)
         XCTAssertFalse(machine.isKeyboardPresented)
     }
 
@@ -184,7 +203,7 @@ final class NotchStateMachineTests: XCTestCase {
         machine.handle(.timerBecameActive)
         machine.handle(.presentedByKeyboard)
         machine.handle(.dismissRequested)
-        XCTAssertEqual(machine.state, .live)
+        XCTAssertEqual(machine.state, .idle)
     }
 
     func testADragCanLandInEitherState() {
@@ -208,7 +227,7 @@ final class NotchStateMachineTests: XCTestCase {
         machine.handle(.presentedByKeyboard)
         machine.handle(.dismissRequested)
         XCTAssertFalse(machine.isLockedOpen)
-        XCTAssertEqual(machine.state, .resting)
+        XCTAssertEqual(machine.state, .idle)
     }
 }
 
@@ -224,9 +243,21 @@ final class NotchMetricsTests: XCTestCase {
     }
 
     func testEveryStateGrowsMonotonically() {
-        let order: [NotchState] = [.hidden, .resting, .live, .peek, .expanded]
-        let widths = order.map { NotchMetrics.forState($0, notch: notch).width }
+        let widths = [
+            NotchMetrics.forState(.hidden, notch: notch).width,
+            NotchMetrics.forState(.idle, notch: notch).width,
+            NotchMetrics.forState(.idle, notch: notch, showsTimer: true).width,
+            NotchMetrics.forState(.peek, notch: notch).width,
+            NotchMetrics.forState(.expanded, notch: notch).width,
+        ]
         XCTAssertEqual(widths, widths.sorted(), "a state must never be narrower than a smaller one")
+    }
+
+    func testIdleWidensToHoldACountdown() {
+        let bare = NotchMetrics.forState(.idle, notch: notch)
+        let timing = NotchMetrics.forState(.idle, notch: notch, showsTimer: true)
+        XCTAssertGreaterThan(timing.width, bare.width)
+        XCTAssertEqual(timing.height, bare.height, "it widens; it does not grow taller")
     }
 
     func testExpandedHeightFollowsItsContent() {
@@ -280,14 +311,14 @@ final class NotchMetricsTests: XCTestCase {
     }
 
     func testCornerRadiusGrowsWithSize() {
-        let resting = NotchMetrics.forState(.resting, notch: notch)
+        let resting = NotchMetrics.forState(.idle, notch: notch)
         let expanded = NotchMetrics.forState(.expanded, notch: notch)
         XCTAssertGreaterThan(expanded.bottomRadius, resting.bottomRadius)
         XCTAssertGreaterThan(expanded.invertedRadius, resting.invertedRadius)
     }
 
     func testMetricsInterpolateAsOneValue() {
-        let a = NotchMetrics.forState(.resting, notch: notch)
+        let a = NotchMetrics.forState(.idle, notch: notch)
         let b = NotchMetrics.forState(.expanded, notch: notch)
         var midpoint = b - a
         midpoint.scale(by: 0.5)

@@ -68,9 +68,13 @@ public enum Motion {
     public static func morph(from: NotchState, to: NotchState) -> Animation {
         if to == .expanded { return expand }
         if to == .peek { return peekIn }
-        if from == .resting && to == .live { return announce }
         return collapse
     }
+
+    /// The idle silhouette widening because a session started, or narrowing
+    /// because one ended. It used to be a state change; now it is a content
+    /// change, and it still deserves its own moment.
+    public static var timerAppeared: Animation { announce }
 
     @discardableResult
     public static func cycleSlowMotion() -> Double {

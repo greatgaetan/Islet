@@ -15,15 +15,24 @@ public struct IsletSettings: Codable, Equatable, Sendable {
     public var playsSound: Bool
     /// The hour the evening review is offered. 24-hour clock.
     public var recapHour: Int
+    /// Whether the review opens itself, or waits to be asked.
+    ///
+    /// On by default: a ritual you are never pulled into is a ritual you never
+    /// perform. It can still be skipped in one keystroke, which is what makes
+    /// insisting acceptable — and turned off entirely here for the days that
+    /// cannot take the interruption.
+    public var recapOpensItself: Bool
 
     public static let recapHourRange: ClosedRange<Int> = 12...23
 
     public init(pomodoro: PomodoroConfiguration = .default,
                 playsSound: Bool = true,
-                recapHour: Int = 18) {
+                recapHour: Int = 18,
+                recapOpensItself: Bool = true) {
         self.pomodoro = pomodoro
         self.playsSound = playsSound
         self.recapHour = recapHour
+        self.recapOpensItself = recapOpensItself
     }
 
     // Older files have no `playsSound`; default it rather than losing the file.
@@ -34,6 +43,9 @@ public struct IsletSettings: Codable, Equatable, Sendable {
         ) ?? .default
         playsSound = try container.decodeIfPresent(Bool.self, forKey: .playsSound) ?? true
         recapHour = try container.decodeIfPresent(Int.self, forKey: .recapHour) ?? 18
+        recapOpensItself = try container.decodeIfPresent(
+            Bool.self, forKey: .recapOpensItself
+        ) ?? true
     }
 
     public static let `default` = IsletSettings()

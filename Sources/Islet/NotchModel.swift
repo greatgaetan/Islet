@@ -63,9 +63,14 @@ final class NotchModel {
     /// This is what the single `VectorArithmetic` value was always for: width,
     /// height and both radii travel together, so a half-open panel is a real,
     /// coherent shape rather than four numbers guessed separately.
+    /// The idle silhouette is wider when it has a countdown to hold — which is
+    /// the whole of what `live` used to be.
+    var showsTimer: Bool { pomodoro.isActive }
+
     var metrics: NotchMetrics {
         guard let dragProgress else {
-            return .forState(machine.state, notch: notch, expandedHeight: expandedHeight)
+            return .forState(machine.state, notch: notch,
+                             expandedHeight: expandedHeight, showsTimer: showsTimer)
         }
         let peek = NotchMetrics.forState(.peek, notch: notch)
         var delta = NotchMetrics.forState(.expanded, notch: notch,
@@ -150,7 +155,12 @@ final class NotchModel {
             guard let self else { return }
             switch phase {
             case .pending: send(.announcementBegan, animation: Motion.announce)
-            case .reviewing: send(.decisionRequired, animation: Motion.expand)
+            case .reviewing:
+                // Locked open *and* expanded. Locking alone left it sitting in
+                // Peek, where the session-end card lives — so the review
+                // announced itself by showing the wrong thing entirely.
+                send(.decisionRequired)
+                send(.clicked, animation: Motion.expand)
             case .idle: send(.decisionResolved)
             }
         }
@@ -220,7 +230,7 @@ final class NotchModel {
     /// hands those clicks to the menu bar underneath, on purpose.
     func silhouetteTapped() {
         switch state {
-        case .resting, .live, .peek:
+        case .idle, .peek:
             send(.clicked)
         case .hidden, .expanded:
             break
@@ -258,12 +268,25 @@ final class NotchModel {
         }
         if keyCode == 53 { // Escape
             guard state == .expanded else { return false }
+            // Escaping a review is not abandoning it: the rest rolls to tomorrow.
+            if recap.isReviewing { dismissRecap(); return true }
             tasks.clearDraft()
             send(.dismissRequested, instant: true)
             return true
         }
 
         guard state == .expanded else { return false }
+
+        // A review answers with the same ⌘-digit the rest of the app uses for
+        // "pick the nth thing in front of me". There is no list to filter while
+        // it is running, so the meaning does not collide.
+        if recap.isReviewing {
+            if hasCommand, let action = RecapModel.Action.forKeyCode(keyCode) {
+                answerRecap(action)
+                return true
+            }
+            return false
+        }
 
         // Tab is about what you are *composing*; it sits inside the field's own
         // flow, and this micro-form has exactly one other thing to move through.

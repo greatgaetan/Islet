@@ -100,7 +100,7 @@ final class NotchController {
                 },
                 interactiveRects: { [weak model] in
                     guard let model else { return [] }
-                    return geometry.interactiveRects(for: model.state)
+                    return geometry.interactiveRects(for: model.state, showsTimer: model.showsTimer)
                 }
             )
             self.panel = panel
@@ -116,8 +116,8 @@ final class NotchController {
             """)
         if Self.logsInteractivity {
             let window = panel?.frame ?? .zero
-            let zone = geometry.hotZone(for: .resting,
-                                       metrics: .forState(.resting, notch: found.dimensions),
+            let zone = geometry.hotZone(for: .idle,
+                                       metrics: .forState(.idle, notch: found.dimensions),
                                        on: found.screen)
             log("window \(rect(window)) — deaf to the mouse: \(panel?.ignoresMouseEvents ?? false)")
             log("resting hot zone \(rect(zone)) — only this is ever interactive at rest")
@@ -282,7 +282,7 @@ final class NotchController {
         }
         if enteredAt == nil { enteredAt = Date() }
 
-        guard model.state == .resting || model.state == .live,
+        guard model.state == .idle,
               let enteredAt, let lastSample else { return }
 
         let now = Date()
@@ -364,7 +364,7 @@ extension NotchController {
     /// know the answer without a real click.
     fileprivate func logFirstMouseAnswer(_ geometry: PanelGeometry) {
         guard let panel, let content = panel.contentView else { return }
-        for rect in geometry.interactiveRects(for: .resting) {
+        for rect in geometry.interactiveRects(for: .idle) {
             let point = CGPoint(x: rect.midX, y: rect.midY)
             guard let hit = content.hitTest(point) else {
                 log("first mouse at \(Int(point.x)),\(Int(point.y)): no view — click falls through")

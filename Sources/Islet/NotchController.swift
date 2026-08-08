@@ -145,6 +145,16 @@ final class NotchController {
                 recap.checkIfDue(now: Calendar.current.date(
                     bySettingHour: 22, minute: 0, second: 0, of: .now) ?? .now)
                 log("recap forced — \(recap.remaining) cards, phase \(recap.phase)")
+                if ProcessInfo.processInfo.environment["ISLET_RECAP_KEYS"] != nil {
+                    try? await Task.sleep(for: .milliseconds(400))
+                    model.claimKeyboardForRecap()
+                    // Activation is asynchronous; reading it synchronously proves
+                    // nothing. And asking from outside the app brings the asker
+                    // to the front, which is worse than useless.
+                    try? await Task.sleep(for: .milliseconds(600))
+                    let front = NSWorkspace.shared.frontmostApplication?.localizedName ?? "?"
+                    log("settled — active=\(NSApp.isActive) isKey=\(self.panel?.isKeyWindow ?? false) front=\(front)")
+                }
                 guard mode == "review" else {
                     log("hover the notch to be offered it")
                     return
@@ -229,9 +239,12 @@ final class NotchController {
 
         if hasFocus {
             previousApp = NSWorkspace.shared.frontmostApplication
+            // Cooperative activation — plain `activate()` — asks the frontmost
+            // app to yield, and it does not. A hotkey utility has to insist, or
+            // keystrokes never reach it and every shortcut is dead.
             NSApp.activate()
             panel.makeKeyAndOrderFront(nil)
-            log("keyboard focus taken — panel isKey=\(panel.isKeyWindow)")
+            log("keyboard focus taken — isKey=\(panel.isKeyWindow) active=\(NSApp.isActive)")
         } else {
             panel.orderFrontRegardless()
             if let previousApp, previousApp.bundleIdentifier != Bundle.main.bundleIdentifier {

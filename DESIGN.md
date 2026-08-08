@@ -344,6 +344,12 @@ session; it simply becomes global. No "here's the next one" conveyor.
   underneath you.
 - Every action is one click **or** one keystroke, ⌘1 to ⌘5, and the digit is
   printed on the button. Escape ends the review; the rest rolls to tomorrow.
+- **The keyboard is claimed only after a deliberate act** — the pointer reaching
+  the panel, or opening the review by hand. Keystrokes only reach an app that is
+  active, and Islet is not; but the review appears unprompted at an hour nobody
+  chose, so activating on sight would swallow whatever you were typing elsewhere.
+  Cooperative `NSApp.activate()` is enough here — the deprecated
+  `ignoringOtherApps:` was tried on a wrong diagnosis and reverted.
 - Card-by-card triage, one task at a time: done / tomorrow / defer / delegate /
   delete. Triage is the ritual, not reading.
 - Ignored means nothing is lost: everything rolls to tomorrow.

@@ -161,7 +161,9 @@ final class NotchModel {
                 // announced itself by showing the wrong thing entirely.
                 send(.decisionRequired)
                 send(.clicked, animation: Motion.expand)
-            case .idle: send(.decisionResolved)
+            case .idle:
+                releaseRecapKeyboard()
+                send(.decisionResolved)
             }
         }
 
@@ -218,6 +220,9 @@ final class NotchModel {
         if machine.isKeyboardPresented != hadKeyboardFocus {
             onKeyboardFocusChanged?(machine.isKeyboardPresented)
         }
+
+        // Reaching for a review with the pointer is enough of a statement.
+        if event == .pointerEntered { claimKeyboardForRecap() }
 
         schedule(after: event)
     }
@@ -332,9 +337,32 @@ final class NotchModel {
         }
     }
 
+    /// Answering needs the keyboard, and the keyboard needs Islet to be the
+    /// active app — a local monitor sees nothing otherwise.
+    ///
+    /// But the review opens itself, unprompted, at an hour you did not choose.
+    /// Seizing the keyboard on top of that would swallow whatever you were
+    /// typing elsewhere. So it waits for one deliberate act — the pointer
+    /// arriving, or you opening it by hand — and takes focus then.
+    private var holdsRecapKeyboard = false
+
+    func claimKeyboardForRecap() {
+        guard recap.isReviewing, !holdsRecapKeyboard else { return }
+        holdsRecapKeyboard = true
+        onKeyboardFocusChanged?(true)
+    }
+
+    private func releaseRecapKeyboard() {
+        guard holdsRecapKeyboard else { return }
+        holdsRecapKeyboard = false
+        onKeyboardFocusChanged?(false)
+    }
+
     func beginRecap() {
         recap.beginReview()
         send(.clicked)
+        // Opening it by hand *is* the deliberate act.
+        claimKeyboardForRecap()
     }
 
     func answerRecap(_ action: RecapModel.Action) {

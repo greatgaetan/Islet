@@ -117,6 +117,7 @@ ISLET_SOUND_LOG=1 swift run    # print each sound as it plays, and its source
 ISLET_DRAG=0.5 swift run       # hold the panel half-open, to inspect the interpolated shape
 ISLET_RECAP=1 swift run        # offer the review now — stops at the dot, so the real path can be walked
 ISLET_RECAP=review swift run   # skip straight to the cards
+ISLET_RECAP_KEYS=1 swift run   # stand in for the pointer, so the keyboard path runs headless
 ISLET_SEED=1 swift run         # write three sample tasks through the real store
 
 ISLET_FAST=1 ISLET_AUTOSTART=1 ISLET_SLOWMO=5 swift run   # the useful combination

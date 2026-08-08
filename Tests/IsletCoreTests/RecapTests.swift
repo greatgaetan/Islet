@@ -7,9 +7,10 @@ private var utc: Calendar {
     return calendar
 }
 
-private func at(_ day: Int, _ hour: Int) -> Date {
+private func at(_ day: Int, _ hour: Int, _ minute: Int = 0) -> Date {
     utc.date(from: DateComponents(timeZone: TimeZone(identifier: "UTC"),
-                                  year: 2026, month: 8, day: day, hour: hour))!
+                                  year: 2026, month: 8, day: day,
+                                  hour: hour, minute: minute))!
 }
 
 final class RecapScheduleTests: XCTestCase {
@@ -25,6 +26,18 @@ final class RecapScheduleTests: XCTestCase {
                        "being asked twice in one evening is how an app gets uninstalled")
         XCTAssertTrue(RecapSchedule.isDue(at: at(9, 18), hour: 18,
                                           lastRun: ranAtSix, calendar: utc))
+    }
+
+    func testTheMinuteCounts() {
+        // The whole point of a free field: 18:30 must not fire at 18:00.
+        XCTAssertFalse(RecapSchedule.isDue(at: at(8, 18, 29), hour: 18, minute: 30,
+                                           lastRun: nil, calendar: utc))
+        XCTAssertTrue(RecapSchedule.isDue(at: at(8, 18, 30), hour: 18, minute: 30,
+                                          lastRun: nil, calendar: utc))
+        // And an hour later still counts as due — the comparison is "past it",
+        // not "equal to it", or a missed tick would swallow the evening.
+        XCTAssertTrue(RecapSchedule.isDue(at: at(8, 19, 0), hour: 18, minute: 30,
+                                          lastRun: nil, calendar: utc))
     }
 
     func testAMissedEveningIsNotOwedTheNextMorning() {

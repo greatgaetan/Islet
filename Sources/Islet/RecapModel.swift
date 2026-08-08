@@ -54,7 +54,7 @@ final class RecapModel {
     var onPhaseChanged: ((Phase) -> Void)?
 
     private let tasks: TaskModel
-    private var settings: () -> Int = { 18 }
+    private var settings: () -> (hour: Int, minute: Int) = { (18, 0) }
     private var opensItself: () -> Bool = { true }
     private var ticker: Task<Void, Never>?
     private var patience: Task<Void, Never>?
@@ -63,7 +63,7 @@ final class RecapModel {
         self.tasks = tasks
     }
 
-    func start(recapHour: @escaping () -> Int,
+    func start(recapHour: @escaping () -> (hour: Int, minute: Int),
                opensItself: @escaping () -> Bool) {
         settings = recapHour
         self.opensItself = opensItself
@@ -84,7 +84,8 @@ final class RecapModel {
     func checkIfDue(now: Date = .now) {
         guard phase == .idle,
               isSurfaceAvailable(),
-              RecapSchedule.isDue(at: now, hour: settings(), lastRun: Preferences.lastRecap)
+              RecapSchedule.isDue(at: now, hour: settings().hour, minute: settings().minute,
+                                  lastRun: Preferences.lastRecap)
         else { return }
 
         let due = RecapPlan.cards(from: tasks.list, at: now)

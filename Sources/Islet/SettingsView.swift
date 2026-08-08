@@ -38,11 +38,16 @@ struct SettingsView: View {
             }
 
             Section("Evening review") {
-                Picker("Offered at", selection: recapHour) {
-                    ForEach(Array(IsletSettings.recapHourRange), id: \.self) { hour in
-                        Text(String(format: "%02d:00", hour)).tag(hour)
-                    }
-                }
+                // A typed field rather than a list of whole hours. Twelve items
+                // in a popup could never cover 18:30, and quarter-hour steps
+                // would be forty-eight items to scroll — while a stepper field
+                // takes any minute, accepts the keyboard, and renders in the
+                // reader's own 12- or 24-hour clock without being asked.
+                //
+                // The scheduler ticks once a minute, so the review appears
+                // within a minute of this time, not on the second.
+                DatePicker("Offered at", selection: recapTime,
+                           displayedComponents: .hourAndMinute)
                 Toggle("Open it automatically", isOn: recapOpensItself)
                 Text("It widens the notch once and then keeps quiet. Left alone for "
                      + "half an hour it gives up and tries again tomorrow, and anything "
@@ -122,9 +127,24 @@ struct SettingsView: View {
                 set: { model.setRecapOpensItself($0) })
     }
 
-    private var recapHour: Binding<Int> {
-        Binding(get: { model.settings.recapHour },
-                set: { model.setRecapHour($0) })
+    /// A `Date` only so `DatePicker` has something to bind to — nothing but its
+    /// hour and minute is ever read, and the day it is pinned to is arbitrary.
+    private var recapTime: Binding<Date> {
+        Binding(
+            get: {
+                let calendar = Calendar.current
+                return calendar.date(
+                    bySettingHour: model.settings.recapHour,
+                    minute: model.settings.recapMinute,
+                    second: 0,
+                    of: .now
+                ) ?? .now
+            },
+            set: { newValue in
+                let parts = Calendar.current.dateComponents([.hour, .minute], from: newValue)
+                model.setRecapTime(hour: parts.hour ?? 18, minute: parts.minute ?? 0)
+            }
+        )
     }
 
     private var playsSound: Binding<Bool> {

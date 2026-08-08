@@ -32,10 +32,12 @@ final class SettingsModel {
         }
     }
 
-    func setRecapHour(_ hour: Int) {
-        let clamped = hour.clamped(to: IsletSettings.recapHourRange)
-        guard clamped != settings.recapHour else { return }
-        settings.recapHour = clamped
+    func setRecapTime(hour: Int, minute: Int) {
+        let h = hour.clamped(to: IsletSettings.recapHourRange)
+        let m = minute.clamped(to: 0...59)
+        guard h != settings.recapHour || m != settings.recapMinute else { return }
+        settings.recapHour = h
+        settings.recapMinute = m
         scheduleSave()
     }
 

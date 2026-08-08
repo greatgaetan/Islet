@@ -15,6 +15,7 @@ public struct IsletSettings: Codable, Equatable, Sendable {
     public var playsSound: Bool
     /// The hour the evening review is offered. 24-hour clock.
     public var recapHour: Int
+    public var recapMinute: Int
     /// Whether the review opens itself, or waits to be asked.
     ///
     /// On by default: a ritual you are never pulled into is a ritual you never
@@ -23,15 +24,20 @@ public struct IsletSettings: Codable, Equatable, Sendable {
     /// cannot take the interruption.
     public var recapOpensItself: Bool
 
-    public static let recapHourRange: ClosedRange<Int> = 12...23
+    /// Any hour, not just the evening: an "evening review" at 06:00 is odd but
+    /// it is nobody else's business, and a free field has no reason to lie about
+    /// what it accepts.
+    public static let recapHourRange: ClosedRange<Int> = 0...23
 
     public init(pomodoro: PomodoroConfiguration = .default,
                 playsSound: Bool = true,
                 recapHour: Int = 18,
+                recapMinute: Int = 0,
                 recapOpensItself: Bool = true) {
         self.pomodoro = pomodoro
         self.playsSound = playsSound
         self.recapHour = recapHour
+        self.recapMinute = recapMinute
         self.recapOpensItself = recapOpensItself
     }
 
@@ -43,6 +49,7 @@ public struct IsletSettings: Codable, Equatable, Sendable {
         ) ?? .default
         playsSound = try container.decodeIfPresent(Bool.self, forKey: .playsSound) ?? true
         recapHour = try container.decodeIfPresent(Int.self, forKey: .recapHour) ?? 18
+        recapMinute = try container.decodeIfPresent(Int.self, forKey: .recapMinute) ?? 0
         recapOpensItself = try container.decodeIfPresent(
             Bool.self, forKey: .recapOpensItself
         ) ?? true

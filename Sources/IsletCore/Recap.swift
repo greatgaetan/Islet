@@ -6,10 +6,13 @@ public enum RecapSchedule: Sendable {
     public static func isDue(
         at now: Date,
         hour: Int,
+        minute: Int = 0,
         lastRun: Date?,
         calendar: Calendar = .current
     ) -> Bool {
-        guard calendar.component(.hour, from: now) >= hour else { return false }
+        let parts = calendar.dateComponents([.hour, .minute], from: now)
+        let elapsed = (parts.hour ?? 0) * 60 + (parts.minute ?? 0)
+        guard elapsed >= hour * 60 + minute else { return false }
         guard let lastRun else { return true }
         return !calendar.isDate(lastRun, inSameDayAs: now)
     }

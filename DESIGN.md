@@ -369,7 +369,12 @@ session; it simply becomes global. No "here's the next one" conveyor.
 
 ## The evening recap
 
-- Configurable hour, 18:00 by default. **It opens itself**, into the full panel.
+- Configurable time to the minute, 18:00 by default — a typed `DatePicker`, not a
+  popup of whole hours. Twelve hours could never express 18:30, and quarter-hour
+  steps would be forty-eight rows to scroll; a field takes any minute, accepts the
+  keyboard, and renders in the reader's own 12- or 24-hour clock for free. The
+  scheduler ticks once a minute, so the review lands within a minute of the time,
+  not on the second. **It opens itself**, into the full panel.
   Originally it only showed a badge and waited to be hovered — reversed, because
   a ritual you are never pulled into is a ritual you never perform. Insisting is
   acceptable precisely because escaping costs one keystroke, and because a switch

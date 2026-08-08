@@ -93,7 +93,7 @@ pkill -f Islet
 | Open either window | the island collapses — a window is in front, so the panel has nothing left to say |
 | Hover a task and press the timer glyph | the session runs **on** that task, and its title shows in the notch while it does |
 | Check or delete the active task mid-session | the session carries on and simply becomes untied — finishing early is not punished |
-| At 18:00 | the review opens itself. Leave it untouched for half an hour and it rolls to tomorrow — or turn off *Open it automatically* in settings and it waits on the notch as a single dot |
+| At 18:00 (any time you set, to the minute) | the review opens itself. Leave it untouched for half an hour and it rolls to tomorrow — or turn off *Open it automatically* in settings and it waits on the notch as a single dot |
 | Answer the review | one card at a time — **⌘1** Done, **⌘2** Tomorrow, **⌘3** Defer, **⌘4** Delegate, **⌘5** Delete, or click. Escape stops, and the rest rolls to tomorrow |
 | Move the pointer away | it collapses after a 400 ms grace period |
 | Close the lid and keep working on an external display | the timer keeps running; segment ends arrive as system notifications |

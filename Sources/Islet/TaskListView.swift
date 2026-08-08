@@ -135,12 +135,30 @@ private struct TaskRow: View {
             // until hovered.
             Menu {
                 ForEach(TaskCategory.allCases) { option in
-                    Button(option.label) { model.recategorise(task.id, to: option) }
+                    Button {
+                        model.recategorise(task.id, to: option)
+                    } label: {
+                        // macOS draws menu items itself and ignores a custom
+                        // foreground colour, so the category cannot be tinted
+                        // here. The silhouette can — and it is the same channel
+                        // that already carries the category for a colour-blind
+                        // reader, so nothing new has to be learned.
+                        Label(option.label,
+                              systemImage: option == task.category ? "checkmark" : option.mark)
+                    }
                 }
             } label: {
-                Text(task.category.label)
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(task.category.tint.opacity(task.isCompleted ? 0.4 : 0.9))
+                HStack(spacing: 3) {
+                    Text(task.category.label)
+                        .font(.system(size: 11, weight: .medium))
+                    // Drawn by hand rather than left to `menuIndicator`: the
+                    // system one brings its own metrics, and the row's height
+                    // must not depend on anything but its text.
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 7, weight: .bold))
+                        .opacity(0.7)
+                }
+                .foregroundStyle(task.category.tint.opacity(task.isCompleted ? 0.4 : 0.9))
             }
             .menuStyle(.borderlessButton)
             .menuIndicator(.hidden)

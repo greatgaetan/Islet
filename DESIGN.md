@@ -295,6 +295,23 @@ they pressed a hotkey to type.
   It is also *always* in the hierarchy rather than inserted on hover: a button
   that only exists once hover has registered is not there yet if you arrive and
   click in the same instant.
+- The same mistake happened again in the list window, and this time nothing
+  worked at all: the completion mark was a `Button` whose label was a bare
+  `Image`, which leaves it whatever hit area a 13 pt glyph happens to have.
+  Checking an item off was simply impossible. Proved with a probe on
+  `toggleCompletion` — the row's hover fired on every pass, the action never did
+  — and fixed with an explicit 18×16 frame plus a `contentShape`. **A `Button`
+  with an `Image` label has no reliable target until you give it one.**
+- **The title had never been editable anywhere.** A task was whatever you typed
+  the first time; a typo was permanent. It is now a plain `TextField` in the row,
+  the way Reminders does it — one click puts the cursor where you aimed, no edit
+  mode to enter or leave. A done task stays `Text`: strikethrough has no
+  `TextField` equivalent, and rewriting something already finished is not a
+  thing anyone needs. Both are pinned to the same height, and the two kinds of
+  row measure 37.0 points either way — checked against the pixels, not the eye.
+  The draft is local state rather than a write-through binding, because the model
+  refuses a blank title and a write-through binding would snap the old text back
+  under the cursor the moment you selected all and started typing.
 - The trash cannot be given an explicit height: the **28 pt row pitch is what the
   panel's height is calculated from**, so it fills the row instead of growing it.
 - In the notch: click a row to check (strike-through propagates via a mask),

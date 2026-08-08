@@ -2,6 +2,19 @@ import XCTest
 @testable import IsletCore
 
 final class TaskListTests: XCTestCase {
+    func testRenameTrimsAndRefusesBlank() throws {
+        var list = TaskList()
+        let task = try XCTUnwrap(list.add(title: "call the plumer", category: .toDo))
+
+        list.rename(task.id, to: "  call the plumber  ")
+        XCTAssertEqual(list.items.first?.title, "call the plumber")
+
+        // A row with no text is a row you can no longer identify, so a blank
+        // title leaves the old one alone rather than storing nothing.
+        list.rename(task.id, to: "   ")
+        XCTAssertEqual(list.items.first?.title, "call the plumber")
+    }
+
     private let now = Date(timeIntervalSince1970: 1_700_000_000)
 
     // MARK: - Adding

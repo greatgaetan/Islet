@@ -64,6 +64,17 @@ public struct TaskList: Codable, Equatable, Sendable {
         items[index].completedAt = items[index].isCompleted ? nil : now.wholeSecond
     }
 
+    /// Renames a task. A blank title is refused rather than stored: a row with
+    /// no text is a row you can no longer identify, and the caller's field shows
+    /// its placeholder in the meantime, so nothing is lost by keeping the old one
+    /// until something real is typed.
+    public mutating func rename(_ id: UUID, to title: String) {
+        guard let index = index(of: id) else { return }
+        let trimmed = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        items[index].title = trimmed
+    }
+
     public mutating func recategorise(_ id: UUID, to category: TaskCategory) {
         guard let index = index(of: id) else { return }
         items[index].category = category

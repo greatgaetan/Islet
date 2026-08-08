@@ -93,6 +93,8 @@ private struct TaskRow: View {
     let model: TaskModel
 
     @State private var isHovered = false
+    @State private var draft = ""
+    @FocusState private var isEditingTitle: Bool
 
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: 10) {
@@ -113,10 +115,7 @@ private struct TaskRow: View {
             .buttonStyle(.plain)
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(task.title)
-                    .font(.system(size: 13))
-                    .strikethrough(task.isCompleted, color: .secondary)
-                    .foregroundStyle(task.isCompleted ? .secondary : .primary)
+                title
 
                 // The metadata is editable here and nowhere else. *Defer* and
                 // *Delegate* each carry an optional field, and until now nothing
@@ -197,6 +196,56 @@ private struct TaskRow: View {
         .contentShape(Rectangle())
         .onHover { isHovered = $0 }
         .background(isHovered ? Color.primary.opacity(0.04) : .clear)
+    }
+
+    // MARK: - Title
+
+    /// Editable in place, the way Reminders does it: one click puts the cursor
+    /// where you aimed. There was no way to fix a typo anywhere in the app
+    /// before this — a task was whatever you typed the first time.
+    ///
+    /// A done task stays plain text. Strikethrough is a `Text` modifier and has
+    /// no `TextField` equivalent, and rewriting something you have already
+    /// finished is not a thing anyone needs to do. Both are pinned to the same
+    /// height so the two kinds of row measure the same.
+    @ViewBuilder
+    private var title: some View {
+        if task.isCompleted {
+            Text(task.title)
+                .font(.system(size: 13))
+                .strikethrough(color: .secondary)
+                .foregroundStyle(.secondary)
+                .frame(height: titleHeight, alignment: .leading)
+        } else {
+            // The draft is local. Writing straight through would fight the
+            // model, which refuses a blank title: selecting all and typing
+            // would snap the old text back under the cursor.
+            TextField("Untitled", text: $draft)
+                .textFieldStyle(.plain)
+                .font(.system(size: 13))
+                .focused($isEditingTitle)
+                .frame(height: titleHeight)
+                .onSubmit { commitTitle() }
+                .onExitCommand { draft = task.title; isEditingTitle = false }
+                .onChange(of: isEditingTitle) { _, focused in
+                    if !focused { commitTitle() }
+                }
+                // Something else may rename or reorder the row underneath;
+                // adopt that, but never over what is being typed.
+                .onChange(of: task.title) { _, new in
+                    if !isEditingTitle { draft = new }
+                }
+                .onAppear { draft = task.title }
+        }
+    }
+
+    private var titleHeight: CGFloat { 17 }
+
+    private func commitTitle() {
+        let trimmed = draft.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { draft = task.title; return }
+        guard trimmed != task.title else { return }
+        model.rename(task.id, to: trimmed)
     }
 
     // MARK: - Editors

@@ -180,6 +180,11 @@ final class TaskModel {
         scheduleSave()
     }
 
+    func rename(_ id: UUID, to title: String) {
+        list.rename(id, to: title)
+        scheduleSave()
+    }
+
     func setDelegate(_ id: UUID, to name: String?) {
         list.setDelegate(id, to: name)
         scheduleSave()

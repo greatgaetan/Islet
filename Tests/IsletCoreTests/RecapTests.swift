@@ -48,6 +48,27 @@ final class RecapScheduleTests: XCTestCase {
     }
 }
 
+final class RecapMinuteTests: XCTestCase {
+    func testMinutesSnapToTheNearestQuarter() {
+        XCTAssertEqual(IsletSettings.snappedMinute(0), 0)
+        XCTAssertEqual(IsletSettings.snappedMinute(7), 0)
+        XCTAssertEqual(IsletSettings.snappedMinute(8), 15)
+        XCTAssertEqual(IsletSettings.snappedMinute(50), 45)
+        XCTAssertEqual(IsletSettings.snappedMinute(59), 45)
+        // Out of range rather than crashing on a hand-edited file.
+        XCTAssertEqual(IsletSettings.snappedMinute(-5), 0)
+        XCTAssertEqual(IsletSettings.snappedMinute(90), 45)
+    }
+
+    func testAFileWrittenByTheOldTypedFieldStillSelectsARow() throws {
+        let json = #"{"recapHour":18,"recapMinute":50}"#.data(using: .utf8)!
+        let settings = try JSONDecoder().decode(IsletSettings.self, from: json)
+        XCTAssertEqual(settings.recapHour, 18)
+        XCTAssertTrue(IsletSettings.recapMinuteSteps.contains(settings.recapMinute))
+        XCTAssertEqual(settings.recapMinute, 45)
+    }
+}
+
 final class RecapPlanTests: XCTestCase {
     private let evening = at(8, 18)
 

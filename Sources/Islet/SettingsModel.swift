@@ -34,7 +34,7 @@ final class SettingsModel {
 
     func setRecapTime(hour: Int, minute: Int) {
         let h = hour.clamped(to: IsletSettings.recapHourRange)
-        let m = minute.clamped(to: 0...59)
+        let m = IsletSettings.snappedMinute(minute)
         guard h != settings.recapHour || m != settings.recapMinute else { return }
         settings.recapHour = h
         settings.recapMinute = m

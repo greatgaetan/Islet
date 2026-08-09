@@ -412,12 +412,19 @@ session; it simply becomes global. No "here's the next one" conveyor.
 
 ## The evening recap
 
-- Configurable time to the minute, 18:00 by default — a typed `DatePicker`, not a
-  popup of whole hours. Twelve hours could never express 18:30, and quarter-hour
-  steps would be forty-eight rows to scroll; a field takes any minute, accepts the
-  keyboard, and renders in the reader's own 12- or 24-hour clock for free. The
-  scheduler ticks once a minute, so the review lands within a minute of the time,
-  not on the second. **It opens itself**, into the full panel.
+- Configurable time, 18:00 by default: an hour popup and a quarter-hour popup.
+  It was a typed `DatePicker` first, and the reasoning that got it there was
+  sound and wrong. `DatePicker` renders as an `NSDatePicker`, whose stepper field
+  keeps the caret once it has it — there is no clicking your way out — and which
+  does not move to the minutes when the two hour digits are in. So the control
+  that was chosen *because* it took the keyboard turned out to be the one that
+  handled the keyboard worst. **Nothing to type beats something to type badly.**
+  The cost is 18:50, which an evening review does not need; the hour popup is
+  still built from the locale's hour template, so a 12-hour reader gets "6 PM".
+  A minute loaded from an older file is snapped to the nearest quarter, or the
+  popup would have a value it cannot show and would render blank. The scheduler
+  ticks once a minute, so the review lands within a minute of the time, not on
+  the second. **It opens itself**, into the full panel.
   Originally it only showed a badge and waited to be hovered — reversed, because
   a ritual you are never pulled into is a ritual you never perform. Insisting is
   acceptable precisely because escaping costs one keystroke, and because a switch

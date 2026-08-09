@@ -29,6 +29,21 @@ public struct IsletSettings: Codable, Equatable, Sendable {
     /// what it accepts.
     public static let recapHourRange: ClosedRange<Int> = 0...23
 
+    /// Quarter hours. Every minute of the day in one popup would be 1 440 rows,
+    /// and an evening review does not need to start at 18:53.
+    public static let recapMinuteSteps = [0, 15, 30, 45]
+
+    /// Rounds to the nearest quarter, so the stored value always matches one of
+    /// the rows the popup offers. Without this a file written by the older typed
+    /// field — or by a future version with finer steps — would select nothing
+    /// and the control would read blank.
+    public static func snappedMinute(_ minute: Int) -> Int {
+        let clamped = minute.clamped(to: 0...59)
+        return recapMinuteSteps.min {
+            abs($0 - clamped) < abs($1 - clamped)
+        } ?? 0
+    }
+
     public init(pomodoro: PomodoroConfiguration = .default,
                 playsSound: Bool = true,
                 recapHour: Int = 18,
@@ -49,7 +64,9 @@ public struct IsletSettings: Codable, Equatable, Sendable {
         ) ?? .default
         playsSound = try container.decodeIfPresent(Bool.self, forKey: .playsSound) ?? true
         recapHour = try container.decodeIfPresent(Int.self, forKey: .recapHour) ?? 18
-        recapMinute = try container.decodeIfPresent(Int.self, forKey: .recapMinute) ?? 0
+        recapMinute = Self.snappedMinute(
+            try container.decodeIfPresent(Int.self, forKey: .recapMinute) ?? 0
+        )
         recapOpensItself = try container.decodeIfPresent(
             Bool.self, forKey: .recapOpensItself
         ) ?? true

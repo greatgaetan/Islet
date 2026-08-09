@@ -38,16 +38,43 @@ struct SettingsView: View {
             }
 
             Section("Evening review") {
-                // A typed field rather than a list of whole hours. Twelve items
-                // in a popup could never cover 18:30, and quarter-hour steps
-                // would be forty-eight items to scroll — while a stepper field
-                // takes any minute, accepts the keyboard, and renders in the
-                // reader's own 12- or 24-hour clock without being asked.
+                // Two popups, not the typed field this used to be. `DatePicker`
+                // renders as an `NSDatePicker`, and its stepper field keeps the
+                // caret once it has it — you cannot click your way out — and it
+                // does not move to the minutes when the two hour digits are in,
+                // so you type "18" and then have to reach for the mouse anyway.
+                // Nothing to type is better than something to type badly.
+                //
+                // Quarter hours are the whole cost: 18:50 can no longer be
+                // asked for. For the hour an evening review is offered, that is
+                // not a real loss.
                 //
                 // The scheduler ticks once a minute, so the review appears
                 // within a minute of this time, not on the second.
-                DatePicker("Offered at", selection: recapTime,
-                           displayedComponents: .hourAndMinute)
+                LabeledContent("Offered at") {
+                    HStack(spacing: 4) {
+                        Picker("Hour", selection: recapHour) {
+                            ForEach(Array(IsletSettings.recapHourRange), id: \.self) { hour in
+                                Text(hourLabel(hour)).tag(hour)
+                            }
+                        }
+                        .labelsHidden()
+                        .fixedSize()
+
+                        // Two bordered popups side by side read as two settings.
+                        // The colon says they are one time.
+                        Text(":")
+                            .foregroundStyle(.secondary)
+
+                        Picker("Minute", selection: recapMinute) {
+                            ForEach(IsletSettings.recapMinuteSteps, id: \.self) { minute in
+                                Text(String(format: "%02d", minute)).tag(minute)
+                            }
+                        }
+                        .labelsHidden()
+                        .fixedSize()
+                    }
+                }
                 Toggle("Open it automatically", isOn: recapOpensItself)
                 Text("It widens the notch once and then keeps quiet. Left alone for "
                      + "half an hour it gives up and tries again tomorrow, and anything "
@@ -127,24 +154,30 @@ struct SettingsView: View {
                 set: { model.setRecapOpensItself($0) })
     }
 
-    /// A `Date` only so `DatePicker` has something to bind to — nothing but its
-    /// hour and minute is ever read, and the day it is pinned to is arbitrary.
-    private var recapTime: Binding<Date> {
-        Binding(
-            get: {
-                let calendar = Calendar.current
-                return calendar.date(
-                    bySettingHour: model.settings.recapHour,
-                    minute: model.settings.recapMinute,
-                    second: 0,
-                    of: .now
-                ) ?? .now
-            },
-            set: { newValue in
-                let parts = Calendar.current.dateComponents([.hour, .minute], from: newValue)
-                model.setRecapTime(hour: parts.hour ?? 18, minute: parts.minute ?? 0)
-            }
-        )
+    private var recapHour: Binding<Int> {
+        Binding(get: { model.settings.recapHour },
+                set: { model.setRecapTime(hour: $0, minute: model.settings.recapMinute) })
+    }
+
+    private var recapMinute: Binding<Int> {
+        Binding(get: { model.settings.recapMinute },
+                set: { model.setRecapTime(hour: model.settings.recapHour, minute: $0) })
+    }
+
+    /// "18" on a 24-hour clock, "6 PM" on a 12-hour one. Built from the locale's
+    /// own hour template rather than hard-coded, because the popup lists hours
+    /// alone and `%02d` would be a lie in half the world.
+    private func hourLabel(_ hour: Int) -> String {
+        let format = DateFormatter.dateFormat(fromTemplate: "j", options: 0,
+                                              locale: .current) ?? "HH"
+        let formatter = DateFormatter()
+        formatter.locale = .current
+        formatter.dateFormat = format
+        guard let date = Calendar.current.date(bySettingHour: hour, minute: 0,
+                                               second: 0, of: .now) else {
+            return String(format: "%02d", hour)
+        }
+        return formatter.string(from: date)
     }
 
     private var playsSound: Binding<Bool> {

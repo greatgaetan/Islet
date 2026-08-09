@@ -64,6 +64,18 @@ final class WindowManager: NSObject {
         tasks.undoDelete()
     }
 
+    /// The filter shortcuts the chips advertise.
+    ///
+    /// They were printed on every chip — "⌘1 To do" — and worked only inside the
+    /// island: nothing bound them anywhere else, so in the list window they were
+    /// a promise the app did not keep. As menu items they now work in any window
+    /// while Islet is active, which is also the only way `NSMenuItem` will handle
+    /// the digit row on a layout where 1 is a shifted key.
+    @objc func filterAll() { tasks.setFilter(nil) }
+    @objc func filterToDo() { tasks.setFilter(.toDo) }
+    @objc func filterDeferred() { tasks.setFilter(.deferred) }
+    @objc func filterDelegated() { tasks.setFilter(.delegated) }
+
     // MARK: - Plumbing
 
     private func makeWindow<Content: View>(

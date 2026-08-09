@@ -277,6 +277,15 @@ they pressed a hotkey to type.
   saturated primaries on a black bezel read as a toy, red already means
   *destructive* here, and green sits beside the short-break mint. The measurement
   is a floor to clear, never the designer.
+- **⌘0–3 live in a View menu, not in a key monitor.** They were printed on every
+  filter chip and bound only inside the island, so in the list window they were a
+  promise the app did not keep — the loudest kind of missing feature, because the
+  chip tells you it exists. As `NSMenuItem`s they work in any window while Islet
+  is active, and the menu is where a macOS user looks for them anyway.
+  This is the one place the AZERTY rule does *not* apply: the panel's monitor has
+  to match digits by key code, because `&` is what that key produces here, but
+  `NSMenuItem` does its own layout-aware matching for the digit row. Verified by
+  pressing the raw key codes — 18, 19, 20, 29 — not by trusting either story.
 - **The windows carry no `.fullSizeContentView`.** It was there with a
   transparent title bar for the seamless look, and it meant the settings form
   scrolled straight into the title: rows and "Islet Settings" drawing over each

@@ -28,7 +28,7 @@ struct TaskListView: View {
 
     private var filters: some View {
         HStack(spacing: 6) {
-            FilterChip(title: "All", tint: .primary, shortcut: nil,
+            FilterChip(title: "All", tint: .primary, shortcut: "0",
                        count: model.openCount, isOn: model.filter == nil) {
                 model.setFilter(nil)
             }

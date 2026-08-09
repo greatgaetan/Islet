@@ -58,6 +58,22 @@ enum MainMenu {
         editItem.submenu = editMenu
         main.addItem(editItem)
 
+        // MARK: View — where ⌘0–3 finally live.
+        let viewItem = NSMenuItem()
+        let viewMenu = NSMenu(title: "View")
+        for (title, key, action) in [
+            ("All", "0", #selector(WindowManager.filterAll)),
+            ("To do", "1", #selector(WindowManager.filterToDo)),
+            ("Defer", "2", #selector(WindowManager.filterDeferred)),
+            ("Delegate", "3", #selector(WindowManager.filterDelegated)),
+        ] {
+            let item = NSMenuItem(title: title, action: action, keyEquivalent: key)
+            item.target = target
+            viewMenu.addItem(item)
+        }
+        viewItem.submenu = viewMenu
+        main.addItem(viewItem)
+
         // MARK: Window
         let windowItem = NSMenuItem()
         let windowMenu = NSMenu(title: "Window")

@@ -51,8 +51,8 @@ final class WindowManager: NSObject {
 
         let window = makeWindow(
             title: "Islet Settings",
-            size: CGSize(width: 420, height: 400),
-            minSize: CGSize(width: 420, height: 400),
+            size: CGSize(width: 420, height: 460),
+            minSize: CGSize(width: 420, height: 460),
             content: SettingsView(model: settings, tasks: tasks),
             resizable: false
         )
@@ -101,6 +101,12 @@ final class WindowManager: NSObject {
         // bar opaque only turned that into a blurred ghost beside it. Neither is
         // worth a settings window. Content now stops where the title bar starts.
         window.titlebarAppearsTransparent = false
+        // The island is black at every hour, so its windows are too. Left to
+        // follow the system, they rendered light half the time and the app read
+        // as two apps. This also makes the stock steppers and popups inside them
+        // draw dark, which no amount of SwiftUI colouring would have done.
+        window.appearance = NSAppearance(named: .darkAqua)
+        window.backgroundColor = .black
         window.isReleasedWhenClosed = false
         window.minSize = minSize
         window.center()

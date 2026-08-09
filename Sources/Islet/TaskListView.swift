@@ -8,7 +8,7 @@ struct TaskListView: View {
     var body: some View {
         VStack(spacing: 0) {
             filters
-            Divider()
+            IsletDivider(inset: 0)
 
             if model.visible.isEmpty {
                 EmptyState(filter: model.filter)
@@ -17,10 +17,17 @@ struct TaskListView: View {
             }
 
             if showsLoginItemOffer {
-                Divider()
+                IsletDivider(inset: 0)
                 loginItemOffer
             }
+
+            // The two shortcuts nobody can guess, said once and always on
+            // screen, rather than only in the empty state — which is the one
+            // moment you are least likely to be reading.
+            IsletStatusBar(leading: "⌥Space to add · ⌘, for settings",
+                           trailing: Bundle.main.isletVersion)
         }
+        .background(WindowStyle.background)
         .frame(minWidth: 380, minHeight: 320)
     }
 
@@ -56,7 +63,7 @@ struct TaskListView: View {
             LazyVStack(spacing: 0) {
                 ForEach(model.visible) { task in
                     TaskRow(task: task, model: model)
-                    Divider().padding(.leading, 42)
+                    IsletDivider(inset: 42)
                 }
             }
         }

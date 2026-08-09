@@ -286,6 +286,37 @@ they pressed a hotkey to type.
   to match digits by key code, because `&` is what that key produces here, but
   `NSMenuItem` does its own layout-aware matching for the digit row. Verified by
   pressing the raw key codes — 18, 19, 20, 29 — not by trusting either story.
+- **The windows are dressed like the island, not like a stock `Form`.** They were
+  two different apps to look at: the island is black at every hour, and a
+  `Form(.grouped)` follows the system appearance — so half the day the settings
+  opened *light*, with system-blue controls, beside a black island. Nothing was
+  broken and nothing matched.
+  Everything in `WindowChrome.swift` is borrowed rather than invented: the
+  island's black, its 9 pt tracked headers, its white opacities, its spacing
+  steps, a 14 pt card radius sitting between the island's 16 and 26. The windows
+  are pinned to `darkAqua` so the stock steppers and popups inside them draw dark
+  too, which no amount of SwiftUI colouring achieves.
+- **Warmth from form, not from a sixth colour.** The reference for this was Handy,
+  which is warm because it is unmistakably itself. What was worth taking: an
+  identity held everywhere, rows that breathe, a status strip along the bottom.
+  What was not: its sidebar — four short sections do not need navigation, that is
+  chassis for no content — and its ⓘ per row, since Islet already explains in
+  prose under each group, which reads better than a tooltip you must go and find.
+- **The accent is the pale azure, and white was tried first and was wrong.** The
+  argument for monochrome was good: colour in Islet means something, five hues
+  already carry meaning, and an amber switch would read as *Defer*. It failed the
+  only test that matters for a switch — on a black window a white track under a
+  white knob reads as **off**. State legibility beats palette purity, and beats it
+  hardest for a colour-blind reader. Reusing the brightest colour already in the
+  palette costs nothing: a switch has to be told from its own off state, which is
+  a lightness job, not from three category marks.
+- Outside a `Form`, a bare `Toggle` renders as a **checkbox** on macOS, in the
+  system accent. Both facts have to be said out loud — `.toggleStyle(.switch)`
+  and `.tint`.
+- The old settings rows were `Stepper(value:) { LabeledContent(…) }`, which makes
+  the **whole row** a stepper: a scroll wheel passing anywhere over it silently
+  changed the value. Found by having it happen, repeatedly, while scrolling the
+  window to take screenshots. The control now sits alone on the right.
 - **The windows carry no `.fullSizeContentView`.** It was there with a
   transparent title bar for the seamless look, and it meant the settings form
   scrolled straight into the title: rows and "Islet Settings" drawing over each

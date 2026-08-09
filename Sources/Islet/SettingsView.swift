@@ -116,6 +116,19 @@ struct SettingsView: View {
                         .font(.system(size: 11))
                         .foregroundStyle(.tertiary)
                 }
+
+                // Quitting was always possible and never findable. An accessory
+                // app has no Dock icon to right-click and no menu bar of its own
+                // on screen, so both existing routes — ⌘Q, and the notch's
+                // context menu — are invisible until you already know them. An
+                // app you cannot work out how to close is one people force-quit.
+                Button("Quit Islet") { NSApp.terminate(nil) }
+                Text("Islet has no Dock icon, so this is the one place a quit "
+                     + "button can live. ⌘Q does it too while Islet is in front, "
+                     + "as does a right-click on the notch. Anything unsaved is "
+                     + "written out first.")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.tertiary)
             }
         }
         .formStyle(.grouped)

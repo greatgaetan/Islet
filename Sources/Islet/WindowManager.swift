@@ -73,7 +73,7 @@ final class WindowManager: NSObject {
         content: Content,
         resizable: Bool = true
     ) -> NSWindow {
-        var style: NSWindow.StyleMask = [.titled, .closable, .miniaturizable, .fullSizeContentView]
+        var style: NSWindow.StyleMask = [.titled, .closable, .miniaturizable]
         if resizable { style.insert(.resizable) }
 
         let window = NSWindow(
@@ -83,7 +83,12 @@ final class WindowManager: NSObject {
             defer: false
         )
         window.title = title
-        window.titlebarAppearsTransparent = true
+        // No `.fullSizeContentView`, no transparent bar. Both were there for
+        // the seamless look and both let the form scroll into the title: with a
+        // transparent bar the rows crossed the title outright, and making the
+        // bar opaque only turned that into a blurred ghost beside it. Neither is
+        // worth a settings window. Content now stops where the title bar starts.
+        window.titlebarAppearsTransparent = false
         window.isReleasedWhenClosed = false
         window.minSize = minSize
         window.center()

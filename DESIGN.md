@@ -277,6 +277,13 @@ they pressed a hotkey to type.
   saturated primaries on a black bezel read as a toy, red already means
   *destructive* here, and green sits beside the short-break mint. The measurement
   is a floor to clear, never the designer.
+- **The windows carry no `.fullSizeContentView`.** It was there with a
+  transparent title bar for the seamless look, and it meant the settings form
+  scrolled straight into the title: rows and "Islet Settings" drawing over each
+  other. Making the bar opaque was the obvious half-fix and it only demoted the
+  collision to a blurred ghost beside the title — that trick is for content-heavy
+  windows with a real toolbar, not a preferences form. Content now stops where
+  the title bar starts, in both windows, and nothing can bleed by construction.
 - **The notch band is the one strip that can never hold content**, because the
   hardware owns its middle — so in Expanded it holds chrome instead of staying
   dead space. Left: the name, once, quieter than the section headers it sits

@@ -413,6 +413,66 @@ private struct ExpandedContent: View {
         .padding(.horizontal, 22)
         .padding(.bottom, 24)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .overlay(alignment: .top) { notchBand }
+    }
+
+    /// The strip either side of the physical notch — the one band of the panel
+    /// that can never hold content, because the hardware owns its middle.
+    ///
+    /// Left names the object. Right carries the evening review, which is the
+    /// only thing Islet does that had no presence here at all: the timer and the
+    /// list are both already on screen, so repeating either would be furniture.
+    /// It reads the time until it is due, then says so.
+    private var notchBand: some View {
+        HStack(spacing: 0) {
+            Text("Islet")
+                .font(.system(size: 11, weight: .semibold))
+                // Quieter than the TASKS and FOCUS headers, which sit at 0.35.
+                // Chrome that outshouts the section it labels is decoration.
+                .foregroundStyle(.white.opacity(0.4))
+                .padding(.leading, 22)
+                .frame(width: armWidth, alignment: .leading)
+
+            // The hardware's own width, kept empty. Nothing may be laid out
+            // under a notch that is going to draw over it.
+            Spacer(minLength: 0).frame(width: model.notch.width)
+
+            Text(reviewLine)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(.white.opacity(model.recap.isPending ? 0.6 : 0.28))
+                .lineLimit(1)
+                .padding(.trailing, 22)
+                .frame(width: armWidth, alignment: .trailing)
+                .animation(Motion.contentIn, value: model.recap.isPending)
+        }
+        .frame(height: model.notch.height)
+        .allowsHitTesting(false)
+    }
+
+    /// How much room there is beside the notch once the island is open.
+    private var armWidth: CGFloat {
+        (NotchMetrics.forState(.expanded, notch: model.notch).width
+         - model.notch.width) / 2
+    }
+
+    private var reviewLine: String {
+        if model.recap.isPending {
+            return "Review ready · \(model.recap.remaining)"
+        }
+        // Once it has been done, say so. Naming tomorrow's hour on an evening
+        // you have already closed reads as a chore you still owe.
+        if let last = Preferences.lastRecap,
+           Calendar.current.isDateInToday(last) {
+            return "Reviewed today"
+        }
+        let time = model.recap.scheduledTime
+        let date = Calendar.current.date(bySettingHour: time.hour,
+                                         minute: time.minute,
+                                         second: 0,
+                                         of: .now) ?? .now
+        // Formatted, not `%02d:%02d`: the reader's clock may well be a 12-hour
+        // one, and the settings field already speaks their locale.
+        return "Review at " + date.formatted(date: .omitted, time: .shortened)
     }
 
     private var tasks: some View {

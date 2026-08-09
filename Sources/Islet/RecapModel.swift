@@ -46,6 +46,8 @@ final class RecapModel {
 
     var current: RecapCard? { index < cards.count ? cards[index] : nil }
     var remaining: Int { max(0, cards.count - index) }
+    /// When the review is next offered, for the panel to say so out loud.
+    var scheduledTime: (hour: Int, minute: Int) { settings() }
     var isPending: Bool { phase == .pending }
     var isReviewing: Bool { phase == .reviewing }
 

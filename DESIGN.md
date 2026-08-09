@@ -277,6 +277,17 @@ they pressed a hotkey to type.
   saturated primaries on a black bezel read as a toy, red already means
   *destructive* here, and green sits beside the short-break mint. The measurement
   is a floor to clear, never the designer.
+- **The notch band is the one strip that can never hold content**, because the
+  hardware owns its middle — so in Expanded it holds chrome instead of staying
+  dead space. Left: the name, once, quieter than the section headers it sits
+  above; chrome that outshouts the thing it labels is decoration. Right: the
+  evening review, chosen because it is the only thing Islet does with *no* other
+  presence in the open panel — the timer and the list are both already on screen,
+  so echoing either would have been furniture. It reads "Review at 18:00", turns
+  brighter as "Review ready · 3" when it is waiting, and says "Reviewed today"
+  once it is done rather than naming tomorrow's hour, which reads as a chore you
+  still owe. The time is formatted, never `%02d:%02d` — the reader's clock may be
+  a 12-hour one.
 - **A silhouette centred to the point can still read as off-centre.** In Peek the
   island measured perfect — notch at 790…1010, island at 670…1130, both centred
   on 900.0, arms equal to the point — and it still looked wrong. The imbalance

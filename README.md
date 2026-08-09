@@ -88,6 +88,7 @@ pkill -f Islet
 | Hover a task | a trash button appears, and **⌫** deletes it — the swipe is for when you know it, the button for when you don't |
 | Look at the row marks | a cyan disc, an amber clock, an azure person — shape *and* colour, so the **All** view needs no words and the categories survive colour blindness |
 | Swipe a task left | deleted — by distance **or** by a quick flick — with a 4 s Undo where the row was |
+| Top of the open panel | the name on the left of the notch, the evening review on the right — "Review at 18:00", "Review ready · 3", or "Reviewed today" |
 | ⌘L | the list window, with category filters — the key is printed in the panel, beside its glyph |
 | ⌘, | settings: durations, review hour, sound, export, login item |
 | Open either window | the island collapses — a window is in front, so the panel has nothing left to say |
